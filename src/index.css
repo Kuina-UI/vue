@@ -1,0 +1,16 @@
+@import "./shared/styles/theme.css";
+@import "./shared/styles/variants/light.css";
+@import "./shared/styles/variants/dark.css";
+@import "./shared/styles/utilities/loading-indicator.css";
+
+@source "../dist";
+
+@layer base {
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+}
