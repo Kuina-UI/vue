@@ -1,2 +1,8 @@
 export { KButton } from './elements/button'
 export type { ButtonProps } from './elements/button'
+export { KCircularProgress } from './elements/circular-progress'
+export type { CircularProgressProps } from './elements/circular-progress'
+export { KLoadingDots } from './elements/loading-dots'
+export type { LoadingDotsProps } from './elements/loading-dots'
+export { KLoadingIndicator } from './elements/loading-indicator'
+export type { LoadingIndicatorProps } from './elements/loading-indicator'
