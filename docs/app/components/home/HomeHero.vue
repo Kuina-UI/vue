@@ -45,12 +45,12 @@ const twinklingDots = twinklingDotCells.map(([column, row], index) => ({
 <template>
   <UPageHero
     orientation="horizontal"
-    description="Accessible, typed components built on Reka UI and Tailwind CSS v4, in light and dark themes. Add them to any Nuxt or Vue app with one install."
+    description="Accessible, typed components built with Tailwind CSS v4, in light and dark themes. Add them to any Nuxt or Vue app with one install."
     :ui="{
       root: 'overflow-hidden border-b border-default pt-14 sm:pt-22',
       container: 'gap-8 py-0 sm:gap-y-8 sm:py-0 lg:gap-x-9 lg:py-0',
       headline: 'mb-2 sm:mb-4',
-      title: 'max-w-md text-4xl font-medium sm:text-5xl lg:text-6xl',
+      title: 'max-w-xl text-4xl font-medium sm:text-5xl lg:text-6xl',
       description: 'mt-2 max-w-154 text-[15px] sm:mt-4 sm:text-base lg:text-lg',
       footer: 'mt-8',
     }"

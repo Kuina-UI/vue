@@ -17,7 +17,7 @@
 ## Composants
 
 - `<script setup lang="ts">`, props typées.
-- Tout comportement interactif (clavier, focus, ARIA) passe par Reka UI : select, menu, dialog, switch… Pas d'ARIA écrit à la main quand Reka UI le gère.
+- Tout est développé dans le projet, sans librairie de composants headless (Reka UI, Radix, Headless UI…) : le comportement interactif (clavier, focus, ARIA) de select, menu, dialog, switch… est écrit ici.
 - Compatible SSR : aucun accès à `window` ou `document` en dehors de `onMounted`, IDs générés avec `useId()`.
 - Icônes : `lucide-vue-next`.
 - `vue` (3.5+) et `tailwindcss` (4+) sont des `peerDependencies`, jamais des dépendances.
