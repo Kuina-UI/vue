@@ -21,7 +21,7 @@ Architecture inspirée de FSD : couches, slices, API publique.
 - Les imports ne vont que vers le bas : `blocks` → `components` → `elements` → `shared`. Jamais d'import entre deux slices d'une même couche : si l'un a besoin de l'autre, celui-ci descend d'une couche.
 - On importe un slice uniquement par son `index.ts`.
 - `src/index.ts` réexporte l'API publique de chaque slice. `src/index.css` est l'entrée CSS (design system + `@source`). `src/nuxt.ts` est le module Nuxt, exposé en `@kuina-ui/vue/nuxt` : il ajoute le CSS et enregistre les composants. Les composants ne dépendent jamais de Nuxt.
-- `docs/` : la documentation (Docus), qui sert aussi de test Nuxt. `playgrounds/vue/` (Vite, ignoré par git) teste hors Nuxt, en important directement le code de `src/`. Ni l'un ni l'autre n'est publié.
+- `docs/` : la documentation (Docus), qui sert aussi de test Nuxt. C'est un repo séparé (`Kuina-UI/docs`), rangé ici pour le manipuler facilement et ignoré par git dans ce repo. `playgrounds/vue/` (Vite, ignoré par git) teste hors Nuxt, en important directement le code de `src/`. Ni l'un ni l'autre n'est publié.
 - `dist/` est généré par le build : ne jamais l'éditer.
 
 ## Composants

@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/public/kuina-logo-dark.svg" />
-  <img src="docs/public/kuina-logo-light.svg" alt="Kuina UI logo" height="64" />
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/kuina-logo-dark.svg" />
+  <img src=".github/assets/kuina-logo-light.svg" alt="Kuina UI logo" height="64" />
 </picture>
 
 # Kuina UI — Vue
@@ -16,15 +16,7 @@ Kuina UI is a library of accessible, typed [Vue](https://vuejs.org) components b
 
 ## Documentation
 
-The documentation lives in [`docs/`](docs). It needs Node.js 22.22+ or 24.15+:
-
-```bash
-cd docs
-npm install
-npm run dev
-```
-
-Then open http://localhost:3000.
+The documentation lives in its own repository: [Kuina-UI/docs](https://github.com/Kuina-UI/docs).
 
 ## Installation
 
