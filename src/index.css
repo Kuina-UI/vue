@@ -1,6 +1,7 @@
 @import "./shared/styles/theme.css";
 @import "./shared/styles/variants/light.css";
 @import "./shared/styles/variants/dark.css";
+@import "./shared/styles/utilities/checkbox-check-mark.css";
 @import "./shared/styles/utilities/loading-dots.css";
 @import "./shared/styles/utilities/loading-indicator.css";
 
