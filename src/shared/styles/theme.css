@@ -5,6 +5,7 @@
   --breakpoint-tv: 120rem;
 
   --color-primary: light-dark(#1f6b59, #48b89a);
+  --color-secondary: light-dark(#be185d, #f472b6);
   --color-canvas: light-dark(var(--color-stone-100), var(--color-stone-900));
   --color-widget: light-dark(var(--color-white), var(--color-stone-800));
   --color-line: light-dark(

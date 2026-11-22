@@ -29,7 +29,7 @@ import { buttonTheme } from './button.theme'
 
 const props = withDefaults(defineProps<ButtonProps>(), {
   variant: 'solid',
-  color: 'primary',
+  color: 'neutral',
   size: 'md',
   pill: true,
   type: 'button',

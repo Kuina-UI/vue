@@ -159,7 +159,7 @@ type ButtonSizeName = keyof typeof buttonSizeScales
 
 const buttonSizeNames = Object.keys(buttonSizeScales) as ButtonSizeName[]
 
-const neutralSoftAppearance: ButtonAppearance = {
+const monochromeSoftAppearance: ButtonAppearance = {
   surface: 'light:before:bg-stone-950/8 dark:before:bg-stone-200/12',
   selectedSurface: 'light:before:bg-stone-950/12 dark:before:bg-stone-200/16',
   text: '',
@@ -171,13 +171,27 @@ const neutralSoftAppearance: ButtonAppearance = {
 const buttonAppearances = {
   solid: {
     primary: {
+      surface: 'before:bg-primary',
+      selectedSurface: 'before:bg-primary before:brightness-90',
+      text: 'light:text-white dark:text-stone-950',
+      selectedText: 'light:text-white dark:text-stone-950',
+      interaction: 'hover:before:brightness-90',
+    },
+    secondary: {
+      surface: 'before:bg-secondary',
+      selectedSurface: 'before:bg-secondary before:brightness-90',
+      text: 'light:text-white dark:text-stone-950',
+      selectedText: 'light:text-white dark:text-stone-950',
+      interaction: 'hover:before:brightness-90',
+    },
+    neutral: {
       surface: 'light:before:bg-neutral-900 dark:before:bg-stone-200',
       selectedSurface: 'light:before:bg-neutral-800 dark:before:bg-stone-300',
       text: 'light:text-white dark:text-stone-950',
       selectedText: 'light:text-white dark:text-stone-950',
       interaction: 'light:hover:before:bg-neutral-800 dark:hover:before:bg-stone-300 light:active:before:bg-neutral-700',
     },
-    secondary: {
+    gray: {
       surface: 'light:before:bg-stone-600 dark:before:bg-stone-700',
       selectedSurface: 'light:before:bg-stone-700 dark:before:bg-stone-600',
       text: 'light:text-white dark:text-white',
@@ -193,8 +207,22 @@ const buttonAppearances = {
     },
   },
   soft: {
-    primary: neutralSoftAppearance,
-    secondary: neutralSoftAppearance,
+    primary: {
+      surface: 'before:bg-primary/16',
+      selectedSurface: 'before:bg-primary/30',
+      text: 'text-primary',
+      selectedText: 'text-primary',
+      interaction: 'hover:before:bg-primary/30',
+    },
+    secondary: {
+      surface: 'before:bg-secondary/16',
+      selectedSurface: 'before:bg-secondary/30',
+      text: 'text-secondary',
+      selectedText: 'text-secondary',
+      interaction: 'hover:before:bg-secondary/30',
+    },
+    neutral: monochromeSoftAppearance,
+    gray: monochromeSoftAppearance,
     danger: {
       surface: 'light:before:bg-red-500/16 dark:before:bg-red-400/16',
       selectedSurface: 'light:before:bg-red-500/30 dark:before:bg-red-400/30',
@@ -205,6 +233,20 @@ const buttonAppearances = {
   },
   outline: {
     primary: {
+      surface: 'before:border before:border-primary',
+      selectedSurface: 'before:border before:border-primary before:bg-primary/8',
+      text: 'text-primary',
+      selectedText: 'text-primary',
+      interaction: 'hover:before:bg-primary/8',
+    },
+    secondary: {
+      surface: 'before:border before:border-secondary',
+      selectedSurface: 'before:border before:border-secondary before:bg-secondary/8',
+      text: 'text-secondary',
+      selectedText: 'text-secondary',
+      interaction: 'hover:before:bg-secondary/8',
+    },
+    neutral: {
       surface: 'before:border light:before:border-stone-950/16 dark:before:border-stone-200/25',
       selectedSurface:
         'before:border light:before:border-stone-950/20 dark:before:border-stone-200/30 light:before:bg-stone-950/2 dark:before:bg-stone-200/4',
@@ -213,7 +255,7 @@ const buttonAppearances = {
       interaction:
         'light:hover:before:border-stone-950/20 dark:hover:before:border-stone-200/30 light:hover:before:bg-stone-950/2 dark:hover:before:bg-stone-200/4 light:active:before:bg-stone-950/4 dark:active:before:bg-stone-200/6',
     },
-    secondary: {
+    gray: {
       surface: 'before:border light:before:border-stone-950/16 dark:before:border-stone-200/25',
       selectedSurface:
         'before:border light:before:border-stone-950/20 dark:before:border-stone-200/30 light:before:bg-stone-950/2 dark:before:bg-stone-200/4',
@@ -233,6 +275,20 @@ const buttonAppearances = {
   },
   ghost: {
     primary: {
+      surface: 'before:scale-96 before:opacity-0 before:bg-primary/16',
+      selectedSurface: 'before:bg-primary/16',
+      text: 'text-primary',
+      selectedText: 'text-primary',
+      interaction: 'hover:before:scale-100 hover:before:opacity-100',
+    },
+    secondary: {
+      surface: 'before:scale-96 before:opacity-0 before:bg-secondary/16',
+      selectedSurface: 'before:bg-secondary/16',
+      text: 'text-secondary',
+      selectedText: 'text-secondary',
+      interaction: 'hover:before:scale-100 hover:before:opacity-100',
+    },
+    neutral: {
       surface: 'before:scale-96 before:opacity-0 light:before:bg-stone-950/8 dark:before:bg-stone-200/12',
       selectedSurface: 'light:before:bg-stone-950/8 dark:before:bg-stone-200/12',
       text: '',
@@ -240,7 +296,7 @@ const buttonAppearances = {
       interaction:
         'hover:before:scale-100 hover:before:opacity-100 light:active:before:bg-stone-950/12 dark:active:before:bg-stone-200/16',
     },
-    secondary: {
+    gray: {
       surface: 'before:scale-96 before:opacity-0 light:before:bg-stone-950/8 dark:before:bg-stone-200/12',
       selectedSurface: 'light:before:bg-stone-950/8 dark:before:bg-stone-200/12',
       text: 'text-muted',
@@ -348,6 +404,8 @@ export const buttonTheme = tv({
     color: {
       primary: '',
       secondary: '',
+      neutral: '',
+      gray: '',
       danger: '',
     },
     size: buttonSizeVariants,
