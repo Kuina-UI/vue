@@ -11,7 +11,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rolldownOptions: {
-      external: ['vue', 'tailwind-variants'],
+      external: ['vue', 'tailwind-variants', 'lucide-vue-next'],
     },
   },
 })
