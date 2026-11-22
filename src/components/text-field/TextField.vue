@@ -26,7 +26,8 @@ export interface TextFieldProps {
 
 <script setup lang="ts">
 import { CircleAlert } from 'lucide-vue-next'
-import { computed, useId } from 'vue'
+import { computed } from 'vue'
+import { useFieldDescription } from '../../shared/composables/useFieldDescription'
 import { textFieldTheme } from './text-field.theme'
 
 defineOptions({ inheritAttrs: false })
@@ -45,19 +46,7 @@ const emit = defineEmits<{
 
 const fieldValue = defineModel<string>()
 
-const generatedInputId = useId()
-
-const inputId = computed(() => props.id ?? generatedInputId)
-const hintId = computed(() => `${inputId.value}-hint`)
-const errorMessageId = computed(() => `${inputId.value}-error`)
-
-const isInvalid = computed(() => props.invalid || Boolean(props.errorMessage))
-
-const describingElementId = computed(() => {
-  if (props.errorMessage) return errorMessageId.value
-  if (props.hint) return hintId.value
-  return undefined
-})
+const { fieldId, hintId, errorMessageId, isInvalid, describingElementId } = useFieldDescription(props)
 
 const trailingContent = computed(() => {
   if (props.trailingActionLabel) return 'action'
@@ -95,7 +84,7 @@ function emitTrailingActionClick(event: MouseEvent) {
     <div :class="textFieldSlots.container({ class: ui?.container })">
       <input
         v-bind="$attrs"
-        :id="inputId"
+        :id="fieldId"
         v-model="fieldValue"
         :type="type"
         :disabled="disabled"
@@ -105,7 +94,7 @@ function emitTrailingActionClick(event: MouseEvent) {
         :class="textFieldSlots.base({ class: ui?.base })"
       />
 
-      <label :for="inputId" :class="textFieldSlots.label({ class: ui?.label })">{{ label }}</label>
+      <label :for="fieldId" :class="textFieldSlots.label({ class: ui?.label })">{{ label }}</label>
 
       <component :is="leadingIcon" v-if="leadingIcon" :class="textFieldSlots.leadingIcon({ class: ui?.leadingIcon })" />
 
