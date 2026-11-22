@@ -1,5 +1,7 @@
 export { KTextField } from './components/text-field'
 export type { TextFieldProps } from './components/text-field'
+export { KTextarea } from './components/textarea'
+export type { TextareaProps } from './components/textarea'
 export { KButton } from './elements/button'
 export type { ButtonProps } from './elements/button'
 export { KCircularProgress } from './elements/circular-progress'
