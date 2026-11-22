@@ -11,8 +11,6 @@
 
 Kuina UI is a library of accessible, typed [Vue](https://vuejs.org) components built from scratch with [Tailwind CSS v4](https://tailwindcss.com/), in light and dark themes. It works as a module in [Nuxt](https://nuxt.com) and with plain imports in any Vue app.
 
-The components follow the [Kuina UI HTML template](https://github.com/Kuina-UI/template), the visual reference: same classes, same sizes, same states.
-
 > [!NOTE]
 > Kuina UI is in early development. The `@kuina-ui/vue` package is not published on npm yet.
 
