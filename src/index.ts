@@ -1,3 +1,5 @@
+export { KAvatarGroup } from './components/avatar-group'
+export type { AvatarGroupMember, AvatarGroupProps } from './components/avatar-group'
 export { KTextField } from './components/text-field'
 export type { TextFieldProps } from './components/text-field'
 export { KTextarea } from './components/textarea'
