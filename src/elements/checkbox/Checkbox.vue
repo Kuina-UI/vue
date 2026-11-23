@@ -13,6 +13,7 @@ export interface CheckboxProps {
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useCustomColor } from '../../shared/composables/useCustomColor'
 import { checkboxTheme } from './checkbox.theme'
 
 defineOptions({ inheritAttrs: false })
@@ -24,22 +25,15 @@ const props = withDefaults(defineProps<CheckboxProps>(), {
 
 const isChecked = defineModel<boolean>({ default: false })
 
-const isThemeColor = computed(() => props.color in checkboxTheme.variants.color)
+const { themeColor, customColorVariable } = useCustomColor(() => props.color, checkboxTheme.variants.color)
 
-const checkboxSlots = computed(() =>
-  checkboxTheme({
-    color: isThemeColor.value ? (props.color as CheckboxThemeVariants['color']) : 'primary',
-    labelPosition: props.labelPosition,
-  }),
-)
-
-const customColorVariable = computed(() => (isThemeColor.value ? undefined : { '--color-primary': props.color }))
+const checkboxSlots = computed(() => checkboxTheme({ color: themeColor.value, labelPosition: props.labelPosition }))
 </script>
 
 <template>
   <label :class="checkboxSlots.root({ class: [ui?.root, props.class] })" :style="customColorVariable">
     <span :class="checkboxSlots.base({ class: ui?.base })">
-      <input v-bind="$attrs" v-model="isChecked" type="checkbox" class="peer sr-only" />
+      <input v-bind="$attrs" v-model="isChecked" :checked="isChecked" type="checkbox" class="peer sr-only" />
       <span aria-hidden="true" :class="checkboxSlots.checkMark({ class: ui?.checkMark })" />
     </span>
     {{ label }}
