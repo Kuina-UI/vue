@@ -5,6 +5,7 @@
 
 # Kuina UI — Vue
 
+[![npm version][npm-version-src]][npm-version-href]
 [![Vue][vue-src]][vue-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 [![Tailwind CSS][tailwindcss-src]][tailwindcss-href]
@@ -12,7 +13,7 @@
 Kuina UI is a library of accessible, typed [Vue](https://vuejs.org) components built from scratch with [Tailwind CSS v4](https://tailwindcss.com/), in light and dark themes. It works as a module in [Nuxt](https://nuxt.com) and with plain imports in any Vue app.
 
 > [!NOTE]
-> Kuina UI is in early development. The `@kuina-ui/vue` package is not published on npm yet.
+> Kuina UI is in early development.
 
 ## Documentation
 
@@ -132,6 +133,8 @@ Kuina UI is free and open source. If it saves you time, you can support its deve
 
 [MIT](LICENSE): free to use, modify and redistribute, including for commercial projects.
 
+[npm-version-src]: https://img.shields.io/npm/v/@kuina-ui/vue?color=18181B
+[npm-version-href]: https://npmjs.com/package/@kuina-ui/vue
 [vue-src]: https://img.shields.io/badge/Vue-18181B?logo=vuedotjs
 [vue-href]: https://vuejs.org
 [nuxt-src]: https://img.shields.io/badge/Nuxt-18181B?logo=nuxt
