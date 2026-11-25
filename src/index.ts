@@ -36,3 +36,16 @@ export { KSwitch } from './elements/switch'
 export type { SwitchProps } from './elements/switch'
 export { KTextLink } from './elements/text-link'
 export type { TextLinkProps } from './elements/text-link'
+export { useShortcuts } from './shared/composables/useShortcuts'
+export type { ShortcutListenerOptions } from './shared/composables/useShortcuts'
+export type {
+  KeyCombination,
+  ShortcutBinding,
+  ShortcutContext,
+  ShortcutDefinition,
+  ShortcutDefinitions,
+  ShortcutGuard,
+  ShortcutHandler,
+  ShortcutModifierName,
+  ShortcutOptions,
+} from './shared/types/shortcut'
