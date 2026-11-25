@@ -5,6 +5,7 @@ import type {
   ShortcutDefinitions,
   ShortcutHandlerOptions,
 } from '../types/shortcut'
+import { isApplePlatform } from './isApplePlatform'
 import { parseShortcut } from './parseShortcut'
 
 const defaultSequenceTimeout = 1000
@@ -12,10 +13,6 @@ const defaultSequenceTimeout = 1000
 const modifierOnlyKeys: ReadonlySet<string> = new Set(['shift', 'control', 'alt', 'meta', 'altgraph', 'capslock', 'fn'])
 
 const physicalCharacterPattern = /^(?:Key|Digit)(.)$/
-
-function isApplePlatform() {
-  return /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent)
-}
 
 function isCaselessCharacter(key: string) {
   return [...key].length === 1 && key.toLowerCase() === key.toUpperCase()
