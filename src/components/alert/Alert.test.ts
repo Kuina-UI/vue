@@ -62,6 +62,13 @@ describe('KAlert', () => {
       expect(findCloseButton()?.getAttribute('type')).toBe('button')
     })
 
+    it('names the close button with closeLabel, so it can be translated', () => {
+      mountAlert({ closable: true, closeLabel: 'Fermer' })
+
+      expect(document.querySelector('button[aria-label="Fermer"]')).not.toBeNull()
+      expect(document.querySelector('button[aria-label="Close"]')).toBeNull()
+    })
+
     it('hides itself and updates its open state when the close button is clicked', async () => {
       const { isOpen, findAlert, findCloseButton } = mountAlert({ closable: true })
 

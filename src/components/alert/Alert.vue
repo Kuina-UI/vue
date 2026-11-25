@@ -12,6 +12,7 @@ export interface AlertProps {
   showIcon?: boolean
   actionsPlacement?: AlertThemeVariants['actionsPlacement']
   closable?: boolean
+  closeLabel?: string
   ui?: Partial<Record<AlertSlotName, ClassNameValue>>
   class?: ClassNameValue
 }
@@ -28,6 +29,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   color: 'primary',
   showIcon: true,
   actionsPlacement: 'end',
+  closeLabel: 'Close',
 })
 
 const isOpen = defineModel<boolean>('open', { default: true })
@@ -83,7 +85,7 @@ const alertThemeSlots = computed(() =>
       </div>
       <KButton
         v-if="closable"
-        label="Close"
+        :label="closeLabel"
         size="xs"
         variant="ghost"
         color="gray"
