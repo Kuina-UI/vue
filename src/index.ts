@@ -13,6 +13,19 @@ export type {
   MenuSeparator,
   MenuTriggerProps,
 } from './components/menu'
+export { KSelect, KSelectField } from './components/select'
+export type {
+  SelectAction,
+  SelectFieldProps,
+  SelectModelValue,
+  SelectOption,
+  SelectOptionAvatar,
+  SelectOptionEntry,
+  SelectOptionGroup,
+  SelectOptionValue,
+  SelectProps,
+  SelectSlots,
+} from './components/select'
 export { KTextField } from './components/text-field'
 export type { TextFieldProps } from './components/text-field'
 export { KTextarea } from './components/textarea'
