@@ -1,5 +1,15 @@
 export { KAvatarGroup } from './components/avatar-group'
 export type { AvatarGroupMember, AvatarGroupProps } from './components/avatar-group'
+export { KMenu } from './components/menu'
+export type {
+  MenuEntry,
+  MenuGroup,
+  MenuHeader,
+  MenuItem,
+  MenuProps,
+  MenuSeparator,
+  MenuTriggerProps,
+} from './components/menu'
 export { KTextField } from './components/text-field'
 export type { TextFieldProps } from './components/text-field'
 export { KTextarea } from './components/textarea'
