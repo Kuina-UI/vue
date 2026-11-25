@@ -30,6 +30,14 @@ const placeAgainstAnchorSide: Record<
     x: alignAlongAnchor(anchorRect.x, anchorRect.width, floatingSize.width, placement),
     y: anchorRect.y + anchorRect.height + placement.sideOffset,
   }),
+  left: ({ anchorRect, floatingSize }, placement) => ({
+    x: anchorRect.x - floatingSize.width - placement.sideOffset,
+    y: alignAlongAnchor(anchorRect.y, anchorRect.height, floatingSize.height, placement),
+  }),
+  right: ({ anchorRect, floatingSize }, placement) => ({
+    x: anchorRect.x + anchorRect.width + placement.sideOffset,
+    y: alignAlongAnchor(anchorRect.y, anchorRect.height, floatingSize.height, placement),
+  }),
 }
 
 /** Place the floating element against its anchor, in viewport coordinates. */

@@ -101,3 +101,25 @@ describe('computeFloatingPosition', () => {
     expect(floatingPosition).toMatchObject({ y: -256, placement: { side: 'top', sideOffset: 6 } })
   })
 })
+
+describe('placeFloatingAgainstAnchor on the left and right sides', () => {
+  it.each([
+    { side: 'right', align: 'start', expectedX: 306, expectedY: 50 },
+    { side: 'right', align: 'center', expectedX: 306, expectedY: -80 },
+    { side: 'right', align: 'end', expectedX: 306, expectedY: -210 },
+    { side: 'left', align: 'start', expectedX: -26, expectedY: 50 },
+  ] as const)('places the floating element at $side-$align', ({ side, align, expectedX, expectedY }) => {
+    const floatingPosition = placeFloatingAgainstAnchor(positionContext, createPlacement({ side, align, sideOffset: 6 }))
+
+    expect(floatingPosition).toMatchObject({ x: expectedX, y: expectedY })
+  })
+
+  it('moves a start alignment along the anchor by the align offset', () => {
+    const floatingPosition = placeFloatingAgainstAnchor(
+      positionContext,
+      createPlacement({ side: 'right', alignOffset: -7 }),
+    )
+
+    expect(floatingPosition.y).toBe(43)
+  })
+})

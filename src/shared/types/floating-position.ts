@@ -1,4 +1,4 @@
-export type FloatingSide = 'top' | 'bottom'
+export type FloatingSide = 'top' | 'bottom' | 'left' | 'right'
 
 export type FloatingAlign = 'start' | 'center' | 'end'
 
