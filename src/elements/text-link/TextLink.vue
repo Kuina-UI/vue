@@ -19,6 +19,7 @@ export interface TextLinkProps {
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { isExternalUrl } from '../../shared/utils/isExternalUrl'
 import { textLinkTheme } from './text-link.theme'
 
 const props = withDefaults(defineProps<TextLinkProps>(), {
@@ -31,7 +32,7 @@ const props = withDefaults(defineProps<TextLinkProps>(), {
 
 const showsUnderline = computed(() => props.underline ?? props.color !== 'primary')
 
-const opensNewTab = computed(() => props.external ?? /^https?:\/\//.test(props.href))
+const opensNewTab = computed(() => props.external ?? isExternalUrl(props.href))
 
 const textLinkSlots = computed(() =>
   textLinkTheme({
