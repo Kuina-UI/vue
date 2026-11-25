@@ -11,14 +11,16 @@ export interface AlertProps {
   icon?: Component
   showIcon?: boolean
   actionsPlacement?: AlertThemeVariants['actionsPlacement']
+  closable?: boolean
   ui?: Partial<Record<AlertSlotName, ClassNameValue>>
   class?: ClassNameValue
 }
 </script>
 
 <script setup lang="ts">
-import { CircleCheck, Info, TriangleAlert } from 'lucide-vue-next'
+import { CircleCheck, Info, TriangleAlert, X } from 'lucide-vue-next'
 import { computed, useSlots } from 'vue'
+import { KButton } from '../../elements/button'
 import { alertTheme } from './alert.theme'
 
 const props = withDefaults(defineProps<AlertProps>(), {
@@ -27,6 +29,8 @@ const props = withDefaults(defineProps<AlertProps>(), {
   showIcon: true,
   actionsPlacement: 'end',
 })
+
+const isOpen = defineModel<boolean>('open', { default: true })
 
 const alertSlots = useSlots()
 
@@ -57,7 +61,11 @@ const alertThemeSlots = computed(() =>
 </script>
 
 <template>
-  <div :role="color === 'danger' ? 'alert' : undefined" :class="alertThemeSlots.root({ class: [ui?.root, props.class] })">
+  <div
+    v-if="isOpen"
+    :role="color === 'danger' ? 'alert' : undefined"
+    :class="alertThemeSlots.root({ class: [ui?.root, props.class] })"
+  >
     <div :class="alertThemeSlots.body({ class: ui?.body })">
       <component :is="alertIcon" v-if="showIcon" :class="alertThemeSlots.icon({ class: ui?.icon })" />
       <div :class="alertThemeSlots.content({ class: ui?.content })">
@@ -73,6 +81,17 @@ const alertThemeSlots = computed(() =>
           <slot name="actions" />
         </div>
       </div>
+      <KButton
+        v-if="closable"
+        label="Close"
+        size="xs"
+        variant="ghost"
+        color="gray"
+        square
+        :leading-icon="X"
+        :class="alertThemeSlots.closeButton({ class: ui?.closeButton })"
+        @click="isOpen = false"
+      />
     </div>
   </div>
 </template>

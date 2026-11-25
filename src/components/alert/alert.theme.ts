@@ -62,6 +62,7 @@ export const alertTheme = tv({
     title: 'font-semibold text-pretty',
     description: 'text-pretty',
     actions: 'flex shrink-0 gap-2',
+    closeButton: 'shrink-0',
   },
   variants: {
     variant: {
