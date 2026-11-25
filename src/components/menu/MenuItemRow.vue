@@ -1,40 +1,61 @@
 <script setup lang="ts">
-import { Check } from 'lucide-vue-next'
+import { Check, ChevronRight } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { KButton } from '../../elements/button'
+import { formatShortcut } from '../../shared/utils/formatShortcut'
 import { isExternalUrl } from '../../shared/utils/isExternalUrl'
-import type { MenuItem, MenuProps } from './Menu.vue'
+import type { MenuItem, MenuItemAction } from './Menu.vue'
 import type { menuTheme } from './menu.theme'
+import { useMenuContext } from './menuContext'
 
 const props = defineProps<{
   menuItem: MenuItem
   menuThemeSlots: ReturnType<typeof menuTheme>
-  ui?: MenuProps['ui']
+  submenuKey?: string
+  submenuId?: string
+  isSubmenuOpen?: boolean
 }>()
 
 const emit = defineEmits<{
   select: [selectEvent: MouseEvent]
+  selectAction: [menuItemAction: MenuItemAction, selectEvent: MouseEvent]
 }>()
+
+const { menuSettings, usesApplePlatform } = useMenuContext()
 
 const menuItemRoles = {
   checkbox: 'menuitemcheckbox',
   radio: 'menuitemradio',
 } as const
 
+const ui = computed(() => menuSettings.value.ui)
+
 const hasIndicator = computed(() => props.menuItem.type !== undefined)
+
+const hasSubmenu = computed(() => Boolean(props.menuItem.submenu))
+
+const hasActions = computed(() => Boolean(props.menuItem.actions?.length))
 
 const isDisabled = computed(() => Boolean(props.menuItem.disabled))
 
 const isChecked = computed(() => Boolean(props.menuItem.checked))
 
-const isLink = computed(() => Boolean(props.menuItem.href) && !hasIndicator.value)
+const isLink = computed(
+  () => Boolean(props.menuItem.href) && !hasIndicator.value && !hasSubmenu.value && !hasActions.value,
+)
 
 const opensNewTab = computed(() => isLink.value && isExternalUrl(props.menuItem.href ?? ''))
+
+const displayedShortcut = computed(() =>
+  props.menuItem.shortcut ? formatShortcut(props.menuItem.shortcut, usesApplePlatform.value) : undefined,
+)
 
 const menuItemAttributes = computed(() => {
   const sharedAttributes = {
     'role': props.menuItem.type ? menuItemRoles[props.menuItem.type] : 'menuitem',
     'tabindex': -1,
     'aria-disabled': isDisabled.value || undefined,
+    'data-menu-item-label': props.menuItem.label,
   }
 
   if (isLink.value) {
@@ -46,6 +67,16 @@ const menuItemAttributes = computed(() => {
     }
   }
 
+  if (hasSubmenu.value) {
+    return {
+      ...sharedAttributes,
+      'aria-haspopup': 'menu',
+      'aria-expanded': String(Boolean(props.isSubmenuOpen)),
+      'aria-controls': props.isSubmenuOpen ? props.submenuId : undefined,
+      'data-submenu-key': props.submenuKey,
+    }
+  }
+
   return { ...sharedAttributes, 'aria-checked': hasIndicator.value ? String(isChecked.value) : undefined }
 })
 </script>
@@ -54,7 +85,7 @@ const menuItemAttributes = computed(() => {
   <component
     :is="isLink ? 'a' : 'div'"
     v-bind="menuItemAttributes"
-    :class="menuThemeSlots.item({ color: menuItem.color, disabled: isDisabled, class: ui?.item })"
+    :class="menuThemeSlots.item({ color: menuItem.color, disabled: isDisabled, hasActions, class: ui?.item })"
     @click="emit('select', $event)"
   >
     <span :class="menuThemeSlots.itemContent({ hasIndicator, class: ui?.itemContent })">
@@ -76,9 +107,28 @@ const menuItemAttributes = computed(() => {
         </span>
       </span>
 
-      <kbd v-if="menuItem.shortcut" :class="menuThemeSlots.itemShortcut({ class: ui?.itemShortcut })">
-        {{ menuItem.shortcut }}
+      <kbd v-if="displayedShortcut" :class="menuThemeSlots.itemShortcut({ class: ui?.itemShortcut })">
+        {{ displayedShortcut }}
       </kbd>
+
+      <span v-if="hasActions" :class="menuThemeSlots.itemActions({ class: ui?.itemActions })">
+        <KButton
+          v-for="(menuItemAction, actionIndex) in menuItem.actions"
+          :key="actionIndex"
+          :label="menuItemAction.label"
+          :leading-icon="menuItemAction.icon"
+          variant="ghost"
+          color="gray"
+          size="xs"
+          square
+          :pill="false"
+          tabindex="-1"
+          data-menu-item-action
+          @click.stop="emit('selectAction', menuItemAction, $event)"
+        />
+      </span>
+
+      <ChevronRight v-if="hasSubmenu" :class="menuThemeSlots.submenuIcon({ class: ui?.submenuIcon })" />
     </span>
 
     <span v-if="opensNewTab" :class="menuThemeSlots.newTabHint({ class: ui?.newTabHint })">(opens in a new tab)</span>

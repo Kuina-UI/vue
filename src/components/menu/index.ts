@@ -4,7 +4,9 @@ export type {
   MenuGroup,
   MenuHeader,
   MenuItem,
+  MenuItemAction,
   MenuProps,
   MenuSeparator,
   MenuTriggerProps,
 } from './Menu.vue'
+export { extractMenuShortcuts } from './menuEntries'

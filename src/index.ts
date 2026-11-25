@@ -2,12 +2,13 @@ export { KAlert } from './components/alert'
 export type { AlertProps } from './components/alert'
 export { KAvatarGroup } from './components/avatar-group'
 export type { AvatarGroupMember, AvatarGroupProps } from './components/avatar-group'
-export { KMenu } from './components/menu'
+export { extractMenuShortcuts, KMenu } from './components/menu'
 export type {
   MenuEntry,
   MenuGroup,
   MenuHeader,
   MenuItem,
+  MenuItemAction,
   MenuProps,
   MenuSeparator,
   MenuTriggerProps,

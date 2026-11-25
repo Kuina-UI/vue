@@ -1,7 +1,7 @@
 import { tv, type VariantProps } from '../../shared/utils/tv'
 
 const uncheckedIndicatorRing =
-  'inset-ring light:inset-ring-stone-950/16 dark:inset-ring-stone-200/25 light:group-focus/menu-item:inset-ring-stone-950/25'
+  'inset-ring light:inset-ring-stone-950/16 dark:inset-ring-stone-200/25 light:group-focus-within/menu-item:inset-ring-stone-950/25'
 
 export const menuTheme = tv({
   slots: {
@@ -20,6 +20,10 @@ export const menuTheme = tv({
     itemLabel: 'block truncate',
     itemDescription: 'block truncate text-muted',
     itemShortcut: 'shrink-0 pl-2 font-sans text-muted',
+    itemActions:
+      '-mr-1.25 flex h-5 shrink-0 items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100',
+    submenuIcon:
+      'my-0.5 -mr-0.5 size-4 shrink-0 opacity-75 transition-opacity group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 group-aria-expanded/menu-item:opacity-100',
     indicatorWrapper: 'flex h-5 shrink-0 items-center',
     indicator: 'flex size-4.5 items-center justify-center',
     indicatorCheckIcon: '',
@@ -31,6 +35,8 @@ export const menuTheme = tv({
     side: {
       top: '',
       bottom: '',
+      left: '',
+      right: '',
     },
     align: {
       start: '',
@@ -69,12 +75,15 @@ export const menuTheme = tv({
     disabled: {
       true: { item: 'cursor-not-allowed opacity-50 before:hidden' },
       false: {
-        item: 'cursor-pointer before:scale-98 before:opacity-0 focus:before:scale-100 focus:before:opacity-100 active:before:scale-98',
+        item: 'cursor-pointer before:scale-98 before:opacity-0 focus-within:before:scale-100 focus-within:before:opacity-100 aria-expanded:before:scale-100 aria-expanded:before:opacity-100 active:before:scale-98',
       },
     },
     hasIndicator: {
       true: { itemContent: 'gap-2' },
       false: { itemContent: 'gap-1.5' },
+    },
+    hasActions: {
+      true: { item: 'has-[button:hover]:before:opacity-40' },
     },
   },
   compoundVariants: [
@@ -84,6 +93,12 @@ export const menuTheme = tv({
     { side: 'top', align: 'start', class: { panel: 'origin-bottom-left' } },
     { side: 'top', align: 'center', class: { panel: 'origin-bottom' } },
     { side: 'top', align: 'end', class: { panel: 'origin-bottom-right' } },
+    { side: 'right', align: 'start', class: { panel: 'origin-top-left' } },
+    { side: 'right', align: 'center', class: { panel: 'origin-left' } },
+    { side: 'right', align: 'end', class: { panel: 'origin-bottom-left' } },
+    { side: 'left', align: 'start', class: { panel: 'origin-top-right' } },
+    { side: 'left', align: 'center', class: { panel: 'origin-right' } },
+    { side: 'left', align: 'end', class: { panel: 'origin-bottom-right' } },
     { type: 'radio', checked: false, class: { indicator: uncheckedIndicatorRing } },
     { type: 'radio', checked: true, class: { indicator: 'light:bg-neutral-900 dark:bg-stone-200' } },
     {
