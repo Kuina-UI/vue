@@ -2,11 +2,13 @@ export { KAlert } from './components/alert'
 export type { AlertProps } from './components/alert'
 export { KAvatarGroup } from './components/avatar-group'
 export type { AvatarGroupMember, AvatarGroupProps } from './components/avatar-group'
-export { KDatePicker, KDateRangePicker } from './components/date-picker'
+export { KDatePicker, KDatePickerField, KDateRangePicker, KDateRangePickerField } from './components/date-picker'
 export type {
+  DatePickerFieldProps,
   DatePickerProps,
   DatePickerSlots,
   DateRange,
+  DateRangePickerFieldProps,
   DateRangePickerProps,
   DateRangePickerSlots,
   DateRangeShortcut,
@@ -59,6 +61,7 @@ export { KSwitch } from './elements/switch'
 export type { SwitchProps } from './elements/switch'
 export { KTextLink } from './elements/text-link'
 export type { TextLinkProps } from './elements/text-link'
+export { useMask } from './shared/composables/useMask'
 export { useShortcuts } from './shared/composables/useShortcuts'
 export type { ShortcutListenerOptions } from './shared/composables/useShortcuts'
 export type {
@@ -73,3 +76,5 @@ export type {
   ShortcutOptions,
 } from './shared/types/shortcut'
 export type { DateOrDateRange, Weekday } from './shared/types/calendar'
+export type { MaskOptions, MaskResult, MaskSettings, MaskToken, MaskTokens } from './shared/types/mask'
+export { createMask } from './shared/utils/createMask'

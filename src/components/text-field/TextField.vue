@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { Component } from 'vue'
+import type { MaskOptions } from '../../shared/types/mask'
 import type { ClassNameValue } from '../../shared/utils/tv'
 import type { TextFieldSlotName, TextFieldThemeVariants } from './text-field.theme'
 
@@ -8,6 +9,7 @@ export interface TextFieldProps {
   id?: string
   type?: 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number'
   placeholder?: string
+  mask?: MaskOptions
   variant?: TextFieldThemeVariants['variant']
   size?: TextFieldThemeVariants['size']
   pill?: boolean
@@ -28,8 +30,9 @@ export interface TextFieldProps {
 
 <script setup lang="ts">
 import { CircleAlert } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useFieldDescription } from '../../shared/composables/useFieldDescription'
+import { useMask } from '../../shared/composables/useMask'
 import { textFieldTheme } from './text-field.theme'
 
 defineOptions({ inheritAttrs: false })
@@ -48,6 +51,26 @@ const emit = defineEmits<{
 }>()
 
 const fieldValue = defineModel<string>()
+const unmaskedFieldValue = defineModel<string>('unmasked')
+
+const { maskedValue, unmaskedValue, setMaskedValue, applyMaskOnInput } = useMask(
+  () => props.mask ?? '',
+  fieldValue.value ?? unmaskedFieldValue.value ?? '',
+)
+
+watch(fieldValue, (nextFieldValue) => {
+  if (props.mask && nextFieldValue !== maskedValue.value) setMaskedValue(nextFieldValue ?? '')
+})
+
+watch(unmaskedFieldValue, (nextUnmaskedValue) => {
+  if (props.mask && nextUnmaskedValue !== unmaskedValue.value) setMaskedValue(nextUnmaskedValue ?? '')
+})
+
+function updateMaskedFieldValue(inputEvent: Event) {
+  applyMaskOnInput(inputEvent)
+  fieldValue.value = maskedValue.value
+  unmaskedFieldValue.value = unmaskedValue.value
+}
 
 const { fieldId, hintId, errorMessageId, isInvalid, describingElementId } = useFieldDescription(props)
 
@@ -70,6 +93,16 @@ const textFieldSlots = computed(() =>
   }),
 )
 
+const fieldInputAttributes = computed(() => ({
+  'id': fieldId.value,
+  'type': props.type,
+  'disabled': props.disabled,
+  'aria-describedby': describingElementId.value,
+  'aria-invalid': isInvalid.value || undefined,
+  'placeholder': props.floatLabel === 'always' ? props.placeholder : ' ',
+  'class': textFieldSlots.value.base({ class: props.ui?.base }),
+}))
+
 const trailingActionTag = computed(() => (props.trailingActionHref ? 'a' : 'button'))
 
 const trailingActionAttributes = computed(() => {
@@ -87,16 +120,12 @@ function emitTrailingActionClick(event: MouseEvent) {
   <div :class="textFieldSlots.root({ class: [ui?.root, props.class] })">
     <div :class="textFieldSlots.container({ class: ui?.container })">
       <input
-        v-bind="$attrs"
-        :id="fieldId"
-        v-model="fieldValue"
-        :type="type"
-        :disabled="disabled"
-        :aria-describedby="describingElementId"
-        :aria-invalid="isInvalid || undefined"
-        :placeholder="floatLabel === 'always' ? placeholder : ' '"
-        :class="textFieldSlots.base({ class: ui?.base })"
+        v-if="mask"
+        v-bind="{ ...$attrs, ...fieldInputAttributes }"
+        :value="maskedValue"
+        @input="updateMaskedFieldValue"
       />
+      <input v-else v-bind="{ ...$attrs, ...fieldInputAttributes }" v-model="fieldValue" />
 
       <label :for="fieldId" :class="textFieldSlots.label({ class: ui?.label })">{{ label }}</label>
 

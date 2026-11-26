@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import { useDismissOnOutsidePointerDown } from '../../shared/composables/useDismissOnOutsidePointerDown'
+import { createShortcutHandler } from '../../shared/utils/createShortcutHandler'
 
 interface DatePickerPopoverOptions {
   isOpen: Ref<boolean>
@@ -9,8 +10,6 @@ interface DatePickerPopoverOptions {
   panelElement: Readonly<Ref<HTMLElement | null>>
   onClose?: () => void
 }
-
-const calendarOpeningKeys = ['Enter', ' ', 'ArrowDown', 'ArrowUp']
 
 /** Open and close the calendar of a date picker from its trigger, the keyboard, focus and outside clicks. */
 export function useDatePickerPopover(popoverOptions: DatePickerPopoverOptions) {
@@ -34,20 +33,19 @@ export function useDatePickerPopover(popoverOptions: DatePickerPopoverOptions) {
     else openCalendar()
   }
 
-  function openCalendarFromTriggerKeys(keyboardEvent: KeyboardEvent) {
-    if (!calendarOpeningKeys.includes(keyboardEvent.key)) return
+  const openCalendarFromTriggerKeys = createShortcutHandler({
+    enter: openCalendar,
+    space: openCalendar,
+    arrowdown: openCalendar,
+    arrowup: openCalendar,
+  })
 
-    keyboardEvent.preventDefault()
-    openCalendar()
-  }
-
-  function closeCalendarOnEscape(keyboardEvent: KeyboardEvent) {
-    if (keyboardEvent.key !== 'Escape') return
-
-    keyboardEvent.preventDefault()
-    keyboardEvent.stopPropagation()
-    closeCalendar({ restoreFocus: true })
-  }
+  const closeCalendarOnEscape = createShortcutHandler({
+    escape: (keyboardEvent) => {
+      keyboardEvent.stopPropagation()
+      closeCalendar({ restoreFocus: true })
+    },
+  })
 
   function closeCalendarWhenFocusLeaves(focusEvent: FocusEvent) {
     const nextFocusedElement = focusEvent.relatedTarget

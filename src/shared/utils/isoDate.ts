@@ -64,6 +64,21 @@ export function isIsoDateInDateList(isoDate: string, dateList: DateOrDateRange[]
   )
 }
 
+export interface IsoDateLimits {
+  min?: string
+  max?: string
+  disabledDates?: DateOrDateRange[]
+  isDateDisabled?: (isoDate: string) => boolean
+}
+
+/** Tell whether a date falls outside min and max, or is disabled by the list or the function. */
+export function isIsoDateUnavailable(isoDate: string, dateLimits: IsoDateLimits) {
+  if (dateLimits.min && isoDate < dateLimits.min) return true
+  if (dateLimits.max && isoDate > dateLimits.max) return true
+  if (dateLimits.disabledDates && isIsoDateInDateList(isoDate, dateLimits.disabledDates)) return true
+  return Boolean(dateLimits.isDateDisabled?.(isoDate))
+}
+
 export function clampIsoDate(isoDate: string, minIsoDate?: string, maxIsoDate?: string) {
   if (minIsoDate && isoDate < minIsoDate) return minIsoDate
   if (maxIsoDate && isoDate > maxIsoDate) return maxIsoDate

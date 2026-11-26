@@ -67,6 +67,18 @@ vi.mock('../../shared/utils/isoDate', async (importOriginal) => ({
   findLocalTodayIsoDate: () => '2026-11-26',
 }))
 
+function findTypedInputs() {
+  return [...document.querySelectorAll<HTMLInputElement>('input[role="combobox"]')]
+}
+
+async function typeInInput(typedInput: HTMLInputElement, rawText: string, inputType = 'insertText') {
+  typedInput.focus()
+  typedInput.value = rawText
+  typedInput.setSelectionRange(rawText.length, rawText.length)
+  typedInput.dispatchEvent(new InputEvent('input', { inputType, bubbles: true }))
+  for (let tickIndex = 0; tickIndex < 5; tickIndex++) await nextTick()
+}
+
 afterEach(() => {
   mountedApps.splice(0).forEach((mountedApp) => mountedApp.unmount())
   document.body.replaceChildren()
@@ -187,5 +199,66 @@ describe('KDateRangePicker', () => {
       '2026-11-03',
       '2026-11-16',
     ])
+  })
+
+  describe('typing', () => {
+    it('adds the dash by itself after the start, and updates the range once both ends are typed', async () => {
+      const dateRangePicker = mountDateRangePicker({ editable: true })
+      const [rangeInput] = findTypedInputs()
+
+      expect(rangeInput.getAttribute('aria-label')).toBe('Report period')
+      expect(rangeInput.placeholder).toBe('MM/DD/YYYY – MM/DD/YYYY')
+
+      await typeInInput(rangeInput, '11032026')
+
+      expect(rangeInput.value).toBe('11/03/2026 – ')
+      expect(dateRangePicker.selectedRange.value).toBeUndefined()
+
+      await typeInInput(rangeInput, '11/03/2026 – 11162026')
+
+      expect(rangeInput.value).toBe('11/03/2026 – 11/16/2026')
+      expect(dateRangePicker.selectedRange.value).toEqual(['2026-11-03', '2026-11-16'])
+    })
+
+    it('removes the whole dash with Backspace', async () => {
+      mountDateRangePicker({ editable: true })
+      const [rangeInput] = findTypedInputs()
+
+      await typeInInput(rangeInput, '11032026')
+      await typeInInput(rangeInput, '11/03/2026 –', 'deleteContentBackward')
+
+      expect(rangeInput.value).toBe('11/03/2026')
+    })
+
+    it('refuses an end before the start or beyond maxRangeDays', async () => {
+      const dateRangePicker = mountDateRangePicker({ editable: true, maxRangeDays: 7 })
+      const [rangeInput] = findTypedInputs()
+
+      await typeInInput(rangeInput, '1116202611032026')
+
+      expect(rangeInput.getAttribute('aria-invalid')).toBe('true')
+      expect(dateRangePicker.selectedRange.value).toBeUndefined()
+
+      await typeInInput(rangeInput, '1103202611302026')
+
+      expect(rangeInput.getAttribute('aria-invalid')).toBe('true')
+      expect(dateRangePicker.selectedRange.value).toBeUndefined()
+    })
+
+    it('reads a pasted range', async () => {
+      const dateRangePicker = mountDateRangePicker({ editable: true })
+      const [rangeInput] = findTypedInputs()
+
+      await typeInInput(rangeInput, '2026-11-03 – 2026-11-16', 'insertFromPaste')
+
+      expect(rangeInput.value).toBe('11/03/2026 – 11/16/2026')
+      expect(dateRangePicker.selectedRange.value).toEqual(['2026-11-03', '2026-11-16'])
+    })
+
+    it('shows the selected range in the input', () => {
+      mountDateRangePicker({ editable: true, modelValue: ['2026-11-03', '2026-11-16'] })
+
+      expect(findTypedInputs()[0].value).toBe('11/03/2026 – 11/16/2026')
+    })
   })
 })

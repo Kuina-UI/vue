@@ -42,6 +42,9 @@ describe('Kuina Nuxt module', () => {
   it('auto-imports every Kuina composable from the package', () => {
     setUpKuinaModule()
 
-    expect(addImports).toHaveBeenCalledWith([{ name: 'useShortcuts', from: '@kuina-ui/vue' }])
+    expect(addImports).toHaveBeenCalledWith([
+      { name: 'useMask', from: '@kuina-ui/vue' },
+      { name: 'useShortcuts', from: '@kuina-ui/vue' },
+    ])
   })
 })

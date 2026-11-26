@@ -4,6 +4,7 @@ import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch }
 import { KButton } from '../../elements/button'
 import type { DateOrDateRange, Weekday } from '../../shared/types/calendar'
 import { createCalendarMonth, orderWeekdays } from '../../shared/utils/calendarMonth'
+import { createShortcutHandler } from '../../shared/utils/createShortcutHandler'
 import {
   addDaysToIsoDate,
   addMonthsToIsoDate,
@@ -13,7 +14,7 @@ import {
   extractIsoMonth,
   findIsoDateWeekday,
   findLocalTodayIsoDate,
-  isIsoDateInDateList,
+  isIsoDateUnavailable,
 } from '../../shared/utils/isoDate'
 import type { ClassNameValue } from '../../shared/utils/tv'
 import DateCalendarMonth from './DateCalendarMonth.vue'
@@ -83,10 +84,7 @@ const tabbableDate = computed(() => {
 })
 
 function isDateUnavailable(isoDate: string) {
-  if (props.min && isoDate < props.min) return true
-  if (props.max && isoDate > props.max) return true
-  if (props.disabledDates && isIsoDateInDateList(isoDate, props.disabledDates)) return true
-  return Boolean(props.isDateDisabled?.(isoDate))
+  return isIsoDateUnavailable(isoDate, props)
 }
 
 function showPreviousMonth() {
@@ -117,41 +115,32 @@ function focusTabbableDay() {
   viewportElement.value?.querySelector<HTMLElement>(`[data-iso-date="${tabbableDate.value}"]`)?.focus()
 }
 
-function findKeyboardTargetDate(keyboardEvent: KeyboardEvent, isoDate: string) {
-  const weekdayColumn = (findIsoDateWeekday(isoDate) - props.weekStartsOn + daysPerWeek) % daysPerWeek
-  const monthStep = keyboardEvent.shiftKey ? 12 : 1
-
-  switch (keyboardEvent.key) {
-    case 'ArrowLeft':
-      return addDaysToIsoDate(isoDate, -1)
-    case 'ArrowRight':
-      return addDaysToIsoDate(isoDate, 1)
-    case 'ArrowUp':
-      return addDaysToIsoDate(isoDate, -daysPerWeek)
-    case 'ArrowDown':
-      return addDaysToIsoDate(isoDate, daysPerWeek)
-    case 'Home':
-      return addDaysToIsoDate(isoDate, -weekdayColumn)
-    case 'End':
-      return addDaysToIsoDate(isoDate, daysPerWeek - 1 - weekdayColumn)
-    case 'PageUp':
-      return addMonthsToIsoDate(isoDate, -monthStep)
-    case 'PageDown':
-      return addMonthsToIsoDate(isoDate, monthStep)
-    default:
-      return undefined
-  }
+function countDaysSinceWeekStart(isoDate: string) {
+  return (findIsoDateWeekday(isoDate) - props.weekStartsOn + daysPerWeek) % daysPerWeek
 }
 
-function moveFocusFromKeyboard(keyboardEvent: KeyboardEvent, isoDate: string) {
-  const keyboardTargetDate = findKeyboardTargetDate(keyboardEvent, isoDate)
-
-  if (!keyboardTargetDate) return
-
-  keyboardEvent.preventDefault()
-  focusedDate.value = clampIsoDate(keyboardTargetDate, props.min, props.max)
+function moveFocusedDate(findTargetDate: (isoDate: string) => string) {
+  focusedDate.value = clampIsoDate(findTargetDate(focusedDate.value), props.min, props.max)
   revealDate(focusedDate.value)
   nextTick(focusTabbableDay)
+}
+
+const moveFocusedDateFromKeys = createShortcutHandler({
+  'arrowleft': () => moveFocusedDate((isoDate) => addDaysToIsoDate(isoDate, -1)),
+  'arrowright': () => moveFocusedDate((isoDate) => addDaysToIsoDate(isoDate, 1)),
+  'arrowup': () => moveFocusedDate((isoDate) => addDaysToIsoDate(isoDate, -daysPerWeek)),
+  'arrowdown': () => moveFocusedDate((isoDate) => addDaysToIsoDate(isoDate, daysPerWeek)),
+  'home': () => moveFocusedDate((isoDate) => addDaysToIsoDate(isoDate, -countDaysSinceWeekStart(isoDate))),
+  'end': () => moveFocusedDate((isoDate) => addDaysToIsoDate(isoDate, daysPerWeek - 1 - countDaysSinceWeekStart(isoDate))),
+  'pageup': () => moveFocusedDate((isoDate) => addMonthsToIsoDate(isoDate, -1)),
+  'pagedown': () => moveFocusedDate((isoDate) => addMonthsToIsoDate(isoDate, 1)),
+  'shift+pageup': () => moveFocusedDate((isoDate) => addMonthsToIsoDate(isoDate, -12)),
+  'shift+pagedown': () => moveFocusedDate((isoDate) => addMonthsToIsoDate(isoDate, 12)),
+})
+
+function moveFocusFromDay(keyboardEvent: KeyboardEvent, isoDate: string) {
+  focusedDate.value = isoDate
+  moveFocusedDateFromKeys(keyboardEvent)
 }
 
 function selectDate(isoDate: string) {
@@ -179,7 +168,12 @@ onMounted(() => {
   })
 })
 
-defineExpose({ focusTabbableDay, revealDate })
+function showDate(isoDate: string) {
+  focusedDate.value = isoDate
+  revealDate(isoDate)
+}
+
+defineExpose({ focusTabbableDay, showDate })
 
 const calendarSlots = computed(() =>
   dateCalendarTheme({ showsTwoMonths: props.monthCount > 1, animatesHeight: animatesHeight.value }),
@@ -248,7 +242,7 @@ const calendarSlots = computed(() =>
               :ui="ui"
               @select-date="selectDate"
               @hover-date="emit('hoverDate', $event)"
-              @keydown-date="moveFocusFromKeyboard"
+              @keydown-date="moveFocusFromDay"
             />
           </div>
         </TransitionGroup>

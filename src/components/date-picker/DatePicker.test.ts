@@ -65,6 +65,18 @@ vi.mock('../../shared/utils/isoDate', async (importOriginal) => ({
   findLocalTodayIsoDate: () => '2026-11-26',
 }))
 
+function findTypedInputs() {
+  return [...document.querySelectorAll<HTMLInputElement>('input[role="combobox"]')]
+}
+
+async function typeInInput(typedInput: HTMLInputElement, rawText: string, inputType = 'insertText') {
+  typedInput.focus()
+  typedInput.value = rawText
+  typedInput.setSelectionRange(rawText.length, rawText.length)
+  typedInput.dispatchEvent(new InputEvent('input', { inputType, bubbles: true }))
+  for (let tickIndex = 0; tickIndex < 5; tickIndex++) await nextTick()
+}
+
 afterEach(() => {
   mountedApps.splice(0).forEach((mountedApp) => mountedApp.unmount())
   document.body.replaceChildren()
@@ -161,6 +173,28 @@ describe('KDatePicker', () => {
     expect(datePicker.findMonthLabels()).toContain('December 2026')
   })
 
+  it('moves to the week edges with Home and End, and by a year with Shift and Page Down', async () => {
+    const datePicker = mountDatePicker({ modelValue: '2026-11-26' })
+    await openDatePicker(datePicker)
+
+    function pressOnFocusedDay(keyboardEventInit: KeyboardEventInit) {
+      document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { ...keyboardEventInit, bubbles: true }))
+    }
+
+    pressOnFocusedDay({ key: 'Home' })
+    await flushVueUpdates()
+    expect(document.activeElement).toBe(datePicker.findDay('2026-11-22'))
+
+    pressOnFocusedDay({ key: 'End' })
+    await flushVueUpdates()
+    expect(document.activeElement).toBe(datePicker.findDay('2026-11-28'))
+
+    pressOnFocusedDay({ key: 'PageDown', shiftKey: true })
+    await flushVueUpdates()
+    expect(document.activeElement).toBe(datePicker.findDay('2027-11-28'))
+    expect(datePicker.findMonthLabels()).toEqual(['November 2027'])
+  })
+
   it('closes on Escape and focuses the trigger', async () => {
     const datePicker = mountDatePicker()
     await openDatePicker(datePicker)
@@ -215,5 +249,26 @@ describe('KDatePicker', () => {
     const { appRoot } = mountDatePicker({ modelValue: '2026-11-26', name: 'due-date' })
 
     expect(appRoot.querySelector<HTMLInputElement>('input[type="hidden"]')?.value).toBe('2026-11-26')
+  })
+
+  describe('typing', () => {
+    it('types the date in the trigger with the mask of the locale', async () => {
+      const datePicker = mountDatePicker({ editable: true })
+      const [dateInput] = findTypedInputs()
+
+      expect(dateInput.getAttribute('aria-label')).toBe('Due date')
+      expect(dateInput.placeholder).toBe('MM/DD/YYYY')
+
+      await typeInInput(dateInput, '11022026')
+
+      expect(dateInput.value).toBe('11/02/2026')
+      expect(datePicker.selectedDate.value).toBe('2026-11-02')
+    })
+
+    it('shows the selected date in the input with a four-digit year', () => {
+      mountDatePicker({ editable: true, modelValue: '2026-11-26' })
+
+      expect(findTypedInputs()[0].value).toBe('11/26/2026')
+    })
   })
 })
