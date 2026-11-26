@@ -39,6 +39,7 @@ export interface SelectFieldProps<
   size?: SelectFieldThemeVariants['size']
   variant?: SelectFieldThemeVariants['variant']
   pill?: boolean
+  floatLabel?: SelectFieldThemeVariants['floatLabel']
   leadingIcon?: Component
   trailingIcon?: Component | null
   side?: FloatingSide
@@ -74,6 +75,7 @@ const props = withDefaults(defineProps<SelectFieldProps<SourceOption, ValueKey, 
   size: '4xl',
   variant: 'outline',
   pill: true,
+  floatLabel: 'auto',
   side: 'bottom',
   align: 'start',
   flip: true,
@@ -184,7 +186,8 @@ const selectFieldSlots = computed(() =>
     variant: props.variant,
     pill: props.pill,
     fieldState: fieldState.value,
-    labelFloating: hasSelection.value || isOpen.value,
+    floatLabel: props.floatLabel,
+    labelFloating: props.floatLabel === 'always' || hasSelection.value || isOpen.value,
     hasLeadingIcon: Boolean(props.leadingIcon),
     disabled: props.disabled,
     open: isOpen.value,

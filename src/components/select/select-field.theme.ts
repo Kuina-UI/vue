@@ -232,6 +232,10 @@ export const selectFieldTheme = tv({
       open: { base: 'border-primary', label: 'text-primary' },
       idle: { label: 'text-muted peer-focus-within:text-primary' },
     },
+    floatLabel: {
+      auto: '',
+      always: { placeholder: 'opacity-100', input: 'placeholder:opacity-100' },
+    },
     labelFloating: {
       true: { label: 'top-0 bg-linear-to-b' },
       false: { label: 'top-1/2 peer-focus-within:top-0 peer-focus-within:bg-linear-to-b' },
@@ -273,6 +277,7 @@ export const selectFieldTheme = tv({
     variant: 'outline',
     pill: true,
     fieldState: 'idle',
+    floatLabel: 'auto',
     labelFloating: false,
     hasLeadingIcon: false,
     disabled: false,

@@ -7,9 +7,11 @@ export interface TextFieldProps {
   label: string
   id?: string
   type?: 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number'
+  placeholder?: string
   variant?: TextFieldThemeVariants['variant']
   size?: TextFieldThemeVariants['size']
   pill?: boolean
+  floatLabel?: TextFieldThemeVariants['floatLabel']
   leadingIcon?: Component
   trailingIcon?: Component
   trailingIconLabel?: string
@@ -37,6 +39,7 @@ const props = withDefaults(defineProps<TextFieldProps>(), {
   variant: 'outline',
   size: '4xl',
   pill: true,
+  floatLabel: 'auto',
 })
 
 const emit = defineEmits<{
@@ -59,6 +62,7 @@ const textFieldSlots = computed(() =>
     variant: props.variant,
     size: props.size,
     pill: props.pill,
+    floatLabel: props.floatLabel,
     hasLeadingIcon: Boolean(props.leadingIcon),
     trailingContent: trailingContent.value,
     invalid: isInvalid.value,
@@ -90,7 +94,7 @@ function emitTrailingActionClick(event: MouseEvent) {
         :disabled="disabled"
         :aria-describedby="describingElementId"
         :aria-invalid="isInvalid || undefined"
-        placeholder=" "
+        :placeholder="floatLabel === 'always' ? placeholder : ' '"
         :class="textFieldSlots.base({ class: ui?.base })"
       />
 

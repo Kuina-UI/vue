@@ -18,6 +18,7 @@ interface TextFieldSizeScale {
   height: string
   fontSize: string
   labelFontSize: string
+  floatingLabelFontSize: string
   trailingActionFontSize: string
   iconSize: string
   pillShape: TextFieldShapeScale
@@ -29,6 +30,7 @@ const textFieldSizeScales = {
     height: 'h-8',
     fontSize: 'text-sm',
     labelFontSize: 'text-[11px] peer-placeholder-shown:text-sm peer-focus:text-[11px]',
+    floatingLabelFontSize: 'text-[11px]',
     trailingActionFontSize: 'text-sm',
     iconSize: 'size-3',
     pillShape: {
@@ -62,6 +64,7 @@ const textFieldSizeScales = {
     height: 'h-9',
     fontSize: 'text-sm',
     labelFontSize: 'text-[11px] peer-placeholder-shown:text-sm peer-focus:text-[11px]',
+    floatingLabelFontSize: 'text-[11px]',
     trailingActionFontSize: 'text-sm',
     iconSize: 'size-3',
     pillShape: {
@@ -95,6 +98,7 @@ const textFieldSizeScales = {
     height: 'h-10',
     fontSize: 'text-base',
     labelFontSize: 'text-[11px] peer-placeholder-shown:text-base peer-focus:text-[11px]',
+    floatingLabelFontSize: 'text-[11px]',
     trailingActionFontSize: 'text-sm',
     iconSize: 'size-3.5',
     pillShape: {
@@ -128,6 +132,7 @@ const textFieldSizeScales = {
     height: 'h-11',
     fontSize: 'text-base',
     labelFontSize: 'text-xs peer-placeholder-shown:text-base peer-focus:text-xs',
+    floatingLabelFontSize: 'text-xs',
     trailingActionFontSize: 'text-sm',
     iconSize: 'size-4',
     pillShape: {
@@ -161,6 +166,7 @@ const textFieldSizeScales = {
     height: 'h-12',
     fontSize: 'text-base',
     labelFontSize: 'text-xs peer-placeholder-shown:text-base peer-focus:text-xs',
+    floatingLabelFontSize: 'text-xs',
     trailingActionFontSize: 'text-sm',
     iconSize: 'size-4',
     pillShape: {
@@ -194,6 +200,7 @@ const textFieldSizeScales = {
     height: 'h-14',
     fontSize: 'text-base',
     labelFontSize: 'text-xs peer-placeholder-shown:text-base peer-focus:text-xs',
+    floatingLabelFontSize: 'text-xs',
     trailingActionFontSize: 'text-sm',
     iconSize: 'size-4',
     pillShape: {
@@ -232,7 +239,6 @@ const textFieldSizeNames = Object.keys(textFieldSizeScales) as TextFieldSizeName
 function createSizeVariant(sizeScale: TextFieldSizeScale) {
   return {
     base: [sizeScale.height, sizeScale.fontSize],
-    label: sizeScale.labelFontSize,
     leadingIcon: sizeScale.iconSize,
     trailingIcon: sizeScale.iconSize,
     trailingAction: sizeScale.trailingActionFontSize,
@@ -257,12 +263,15 @@ function createShapeCompounds(sizeName: TextFieldSizeName) {
         },
       },
       { size: sizeName, pill, hasLeadingIcon: false, class: { base: shape.leadingPadding, label: shape.labelOffset } },
+      { size: sizeName, pill, hasLeadingIcon: true, class: { base: shape.leadingPaddingWithIcon } },
       {
         size: sizeName,
         pill,
         hasLeadingIcon: true,
-        class: { base: shape.leadingPaddingWithIcon, label: shape.labelOffsetWithLeadingIcon },
+        floatLabel: 'auto',
+        class: { label: shape.labelOffsetWithLeadingIcon },
       },
+      { size: sizeName, pill, hasLeadingIcon: true, floatLabel: 'always', class: { label: shape.labelOffset } },
       { size: sizeName, pill, trailingContent: 'none', class: { base: shape.trailingPadding } },
       { size: sizeName, pill, trailingContent: ['icon', 'iconButton'], class: { base: shape.trailingPaddingWithIcon } },
       { size: sizeName, pill, trailingContent: 'icon', class: { trailingIcon: shape.trailingIconOffset } },
@@ -271,19 +280,30 @@ function createShapeCompounds(sizeName: TextFieldSizeName) {
   })
 }
 
+function createFloatLabelCompounds(sizeName: TextFieldSizeName) {
+  const sizeScale = textFieldSizeScales[sizeName]
+
+  return [
+    { size: sizeName, floatLabel: 'auto', class: { label: sizeScale.labelFontSize } },
+    { size: sizeName, floatLabel: 'always', class: { label: sizeScale.floatingLabelFontSize } },
+  ] as const
+}
+
 const textFieldSizeVariants = Object.fromEntries(
   textFieldSizeNames.map((sizeName) => [sizeName, createSizeVariant(textFieldSizeScales[sizeName])]),
 ) as Record<TextFieldSizeName, ReturnType<typeof createSizeVariant>>
 
 const textFieldShapeCompounds = textFieldSizeNames.flatMap(createShapeCompounds)
 
+const textFieldFloatLabelCompounds = textFieldSizeNames.flatMap(createFloatLabelCompounds)
+
 export const textFieldTheme = tv({
   slots: {
     root: '',
     container: 'relative',
-    base: 'peer w-full border bg-field outline-hidden transition-colors',
+    base: 'peer w-full border bg-field outline-hidden transition-colors placeholder:text-muted',
     label:
-      'pointer-events-none absolute top-0 -translate-y-1/2 bg-linear-to-b from-canvas from-50% to-field to-50% px-1 transition-colors peer-placeholder-shown:top-1/2 peer-placeholder-shown:transition-all peer-focus:transition-all peer-placeholder-shown:bg-none peer-focus:top-0 peer-focus:bg-linear-to-b',
+      'pointer-events-none absolute top-0 -translate-y-1/2 bg-linear-to-b from-canvas from-50% to-field to-50% px-1 transition-colors',
     leadingIcon: 'pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted',
     trailingIcon: '',
     trailingIconButton:
@@ -306,6 +326,13 @@ export const textFieldTheme = tv({
     hasLeadingIcon: {
       true: '',
     },
+    floatLabel: {
+      auto: {
+        label:
+          'peer-placeholder-shown:top-1/2 peer-placeholder-shown:transition-all peer-focus:transition-all peer-placeholder-shown:bg-none peer-focus:top-0 peer-focus:bg-linear-to-b',
+      },
+      always: '',
+    },
     trailingContent: {
       none: '',
       icon: { trailingIcon: 'pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted' },
@@ -324,6 +351,7 @@ export const textFieldTheme = tv({
   },
   compoundVariants: [
     ...textFieldShapeCompounds,
+    ...textFieldFloatLabelCompounds,
     {
       invalid: false,
       disabled: false,

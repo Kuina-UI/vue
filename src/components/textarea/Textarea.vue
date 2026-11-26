@@ -5,6 +5,7 @@ import type { TextareaSlotName, TextareaThemeVariants } from './textarea.theme'
 export interface TextareaProps {
   label: string
   id?: string
+  placeholder?: string
   rows?: number
   autoResize?: boolean
   maxRows?: number
@@ -12,6 +13,7 @@ export interface TextareaProps {
   variant?: TextareaThemeVariants['variant']
   size?: TextareaThemeVariants['size']
   pill?: boolean
+  floatLabel?: TextareaThemeVariants['floatLabel']
   hint?: string
   errorMessage?: string
   invalid?: boolean
@@ -35,6 +37,7 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   variant: 'outline',
   size: '4xl',
   pill: true,
+  floatLabel: 'auto',
 })
 
 const fieldValue = defineModel<string>()
@@ -46,6 +49,7 @@ const textareaSlots = computed(() =>
     variant: props.variant,
     size: props.size,
     pill: props.pill,
+    floatLabel: props.floatLabel,
     autoResize: props.autoResize,
     invalid: isInvalid.value,
     disabled: props.disabled,
@@ -74,7 +78,7 @@ const hasFooter = computed(() => Boolean(props.errorMessage || props.hint || pro
         :aria-describedby="describingElementId"
         :aria-invalid="isInvalid || undefined"
         :style="autoResizeRowLimits"
-        placeholder=" "
+        :placeholder="floatLabel === 'always' ? placeholder : ' '"
         :class="textareaSlots.base({ class: ui?.base })"
       />
 

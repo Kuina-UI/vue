@@ -10,6 +10,7 @@ interface TextareaSizeScale {
   fontSize: string
   verticalPadding: string
   labelFontSize: string
+  floatingLabelFontSize: string
   labelRestingTop: string
   autoResizeHeights: string
   pillShape: TextareaShapeScale
@@ -21,6 +22,7 @@ const textareaSizeScales = {
     fontSize: 'text-sm',
     verticalPadding: 'py-1.25',
     labelFontSize: 'text-[11px] peer-placeholder-shown:text-sm peer-focus:text-[11px]',
+    floatingLabelFontSize: 'text-[11px]',
     labelRestingTop: 'peer-placeholder-shown:top-4',
     autoResizeHeights:
       'min-h-[calc(var(--textarea-min-rows)*1lh+12px)] max-h-[calc(var(--textarea-max-rows)*1lh+12px)]',
@@ -31,6 +33,7 @@ const textareaSizeScales = {
     fontSize: 'text-sm',
     verticalPadding: 'py-1.75',
     labelFontSize: 'text-[11px] peer-placeholder-shown:text-sm peer-focus:text-[11px]',
+    floatingLabelFontSize: 'text-[11px]',
     labelRestingTop: 'peer-placeholder-shown:top-4.5',
     autoResizeHeights:
       'min-h-[calc(var(--textarea-min-rows)*1lh+16px)] max-h-[calc(var(--textarea-max-rows)*1lh+16px)]',
@@ -41,6 +44,7 @@ const textareaSizeScales = {
     fontSize: 'text-base',
     verticalPadding: 'py-1.75',
     labelFontSize: 'text-[11px] peer-placeholder-shown:text-base peer-focus:text-[11px]',
+    floatingLabelFontSize: 'text-[11px]',
     labelRestingTop: 'peer-placeholder-shown:top-5',
     autoResizeHeights:
       'min-h-[calc(var(--textarea-min-rows)*1lh+16px)] max-h-[calc(var(--textarea-max-rows)*1lh+16px)]',
@@ -51,6 +55,7 @@ const textareaSizeScales = {
     fontSize: 'text-base',
     verticalPadding: 'py-2.25',
     labelFontSize: 'text-xs peer-placeholder-shown:text-base peer-focus:text-xs',
+    floatingLabelFontSize: 'text-xs',
     labelRestingTop: 'peer-placeholder-shown:top-5.5',
     autoResizeHeights:
       'min-h-[calc(var(--textarea-min-rows)*1lh+20px)] max-h-[calc(var(--textarea-max-rows)*1lh+20px)]',
@@ -61,6 +66,7 @@ const textareaSizeScales = {
     fontSize: 'text-base',
     verticalPadding: 'py-2.75',
     labelFontSize: 'text-xs peer-placeholder-shown:text-base peer-focus:text-xs',
+    floatingLabelFontSize: 'text-xs',
     labelRestingTop: 'peer-placeholder-shown:top-6',
     autoResizeHeights:
       'min-h-[calc(var(--textarea-min-rows)*1lh+24px)] max-h-[calc(var(--textarea-max-rows)*1lh+24px)]',
@@ -71,6 +77,7 @@ const textareaSizeScales = {
     fontSize: 'text-base',
     verticalPadding: 'py-3.75',
     labelFontSize: 'text-xs peer-placeholder-shown:text-base peer-focus:text-xs',
+    floatingLabelFontSize: 'text-xs',
     labelRestingTop: 'peer-placeholder-shown:top-7',
     autoResizeHeights:
       'min-h-[calc(var(--textarea-min-rows)*1lh+32px)] max-h-[calc(var(--textarea-max-rows)*1lh+32px)]',
@@ -86,7 +93,6 @@ const textareaSizeNames = Object.keys(textareaSizeScales) as TextareaSizeName[]
 function createSizeVariant(sizeScale: TextareaSizeScale) {
   return {
     base: [sizeScale.fontSize, sizeScale.verticalPadding],
-    label: [sizeScale.labelFontSize, sizeScale.labelRestingTop],
   }
 }
 
@@ -111,7 +117,9 @@ function createSizeCompounds(sizeName: TextareaSizeName) {
       },
     },
     { size: sizeName, autoResize: true, class: { base: sizeScale.autoResizeHeights } },
-  ]
+    { size: sizeName, floatLabel: 'auto', class: { label: [sizeScale.labelFontSize, sizeScale.labelRestingTop] } },
+    { size: sizeName, floatLabel: 'always', class: { label: sizeScale.floatingLabelFontSize } },
+  ] as const
 }
 
 const textareaSizeVariants = Object.fromEntries(
@@ -124,9 +132,9 @@ export const textareaTheme = tv({
   slots: {
     root: '',
     container: 'relative',
-    base: 'peer block w-full resize-none border bg-field outline-hidden transition-colors',
+    base: 'peer block w-full resize-none border bg-field outline-hidden transition-colors placeholder:text-muted',
     label:
-      'pointer-events-none absolute top-0 -translate-y-1/2 bg-linear-to-b from-canvas from-50% to-field to-50% px-1 transition-colors peer-placeholder-shown:bg-none peer-placeholder-shown:transition-all peer-focus:top-0 peer-focus:bg-linear-to-b peer-focus:transition-all',
+      'pointer-events-none absolute top-0 -translate-y-1/2 bg-linear-to-b from-canvas from-50% to-field to-50% px-1 transition-colors',
     footer: 'mt-2 flex items-start gap-x-4 text-xs',
     hint: 'text-muted',
     errorMessage: 'flex items-start gap-x-1.5 light:text-red-600 dark:text-red-400',
@@ -141,6 +149,13 @@ export const textareaTheme = tv({
     size: textareaSizeVariants,
     pill: {
       true: '',
+    },
+    floatLabel: {
+      auto: {
+        label:
+          'peer-placeholder-shown:bg-none peer-placeholder-shown:transition-all peer-focus:top-0 peer-focus:bg-linear-to-b peer-focus:transition-all',
+      },
+      always: '',
     },
     autoResize: {
       true: { base: 'field-sizing-content' },

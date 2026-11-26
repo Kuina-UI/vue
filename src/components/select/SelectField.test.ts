@@ -111,6 +111,19 @@ describe('KSelectField', () => {
     expect(placeholderElement?.className).toContain('group-focus-within:opacity-100')
   })
 
+  it('keeps the label up and the placeholder visible when the label always floats', () => {
+    const { findTrigger, findLabel } = mountSelectField({ placeholder: 'Choose your country', floatLabel: 'always' })
+
+    const placeholderElement = [...findTrigger().querySelectorAll('span')].find(
+      (spanElement) => spanElement.textContent?.trim() === 'Choose your country' && !spanElement.querySelector('span'),
+    )
+
+    expect(findLabel()?.className).toContain('top-0')
+    expect(findLabel()?.className).not.toContain('top-1/2')
+    expect(placeholderElement?.className).toContain('opacity-100')
+    expect(placeholderElement?.className).not.toContain('opacity-0')
+  })
+
   describe('search in the field', () => {
     function findSearchField(appRoot: HTMLElement) {
       const searchField = appRoot.querySelector<HTMLInputElement>('input[role="combobox"]')
