@@ -3,7 +3,7 @@ import type { Component, InputHTMLAttributes } from 'vue'
 import type { FloatingAlign, FloatingSide, FloatingStrategy } from '../../shared/types/floating-position'
 import type { ClassNameValue } from '../../shared/utils/tv'
 import type { SelectPanelSlotName } from './select-panel.theme'
-import type { SelectSlotName, SelectThemeVariants } from './select.theme'
+import type { SelectControlSlotName, SelectControlThemeVariants } from '../../elements/select-control'
 import type { SelectOption, SelectOptionEntry } from './selectOptions'
 import type { SelectAction } from './useSelectListbox'
 
@@ -45,8 +45,8 @@ export interface SelectProps<SourceOption = SelectOption, ValueKey extends strin
   name?: string
   disabled?: boolean
   invalid?: boolean
-  size?: SelectThemeVariants['size']
-  variant?: SelectThemeVariants['variant']
+  size?: SelectControlThemeVariants['size']
+  variant?: SelectControlThemeVariants['variant']
   pill?: boolean
   block?: boolean
   leadingIcon?: Component
@@ -55,7 +55,7 @@ export interface SelectProps<SourceOption = SelectOption, ValueKey extends strin
   align?: FloatingAlign
   flip?: boolean
   strategy?: FloatingStrategy
-  ui?: Partial<Record<SelectSlotName | SelectPanelSlotName, ClassNameValue>>
+  ui?: Partial<Record<SelectControlSlotName | SelectPanelSlotName, ClassNameValue>>
   class?: ClassNameValue
 }
 
@@ -69,10 +69,10 @@ export interface SelectSlots<SourceOption> {
 <script setup lang="ts" generic="SourceOption = SelectOption, ValueKey extends string = 'value', Multiple extends boolean = false">
 import { X } from 'lucide-vue-next'
 import { computed, type Ref, useTemplateRef } from 'vue'
-import { KAvatar } from '../../elements/avatar'
+import { type AvatarProps, KAvatar } from '../../elements/avatar'
 import { KLoadingIndicator } from '../../elements/loading-indicator'
+import { KSelectControl } from '../../elements/select-control'
 import SelectPanel from './SelectPanel.vue'
-import { findSelectTriggerAvatarSize, selectTheme } from './select.theme'
 import { useSelectControl } from './useSelectControl'
 
 const props = withDefaults(defineProps<SelectProps<SourceOption, ValueKey, Multiple>>(), {
@@ -101,8 +101,18 @@ const slots = defineSlots<SelectSlots<SourceOption>>()
 const selectedValue = defineModel<SelectModelValue<SourceOption, ValueKey, Multiple>>()
 const isOpen = defineModel<boolean>('open', { default: false })
 
-const selectRoot = useTemplateRef<HTMLElement>('selectRoot')
-const selectTrigger = useTemplateRef<HTMLElement>('selectTrigger')
+const triggerAvatarSizes: Partial<Record<NonNullable<SelectControlThemeVariants['size']>, AvatarProps['size']>> = {
+  'md': '3xs',
+  'lg': '2xs',
+  'xl': 'xs',
+  '2xl': 'sm',
+  '3xl': 'md',
+  '4xl': 'lg',
+}
+
+const selectControl = useTemplateRef<InstanceType<typeof KSelectControl>>('selectControl')
+const selectRoot = computed(() => selectControl.value?.rootElement ?? null)
+const selectTrigger = computed(() => selectControl.value?.triggerElement ?? null)
 const selectSearchInput = useTemplateRef<HTMLInputElement>('selectSearchInput')
 const selectLayer = useTemplateRef<HTMLElement>('selectLayer')
 
@@ -187,47 +197,40 @@ const triggerAttributes = computed(() => {
 })
 
 const triggerAvatar = computed(() => {
-  const triggerAvatarSize = findSelectTriggerAvatarSize(props.size ?? 'md')
+  const triggerAvatarSize = triggerAvatarSizes[props.size]
   return triggerAvatarSize && selectedAvatar.value ? { ...selectedAvatar.value, size: triggerAvatarSize } : undefined
 })
-
-const selectSlots = computed(() =>
-  selectTheme({
-    size: props.size,
-    variant: props.variant,
-    pill: props.pill,
-    block: props.block,
-    open: isOpen.value,
-    invalid: props.invalid,
-    interactive: isOpenable.value,
-    disabled: props.disabled,
-    hasSelection: hasSelection.value,
-    searchesInTrigger: searchesInTrigger.value,
-    hasTrailingIcon: showsTrailingIcon.value,
-  }),
-)
 </script>
 
 <template>
-  <div ref="selectRoot" :class="selectSlots.root({ class: [ui?.root, props.class] })">
-    <template v-if="name">
-      <input
-        v-for="(submittedValue, submittedValueIndex) in selectedValues"
-        :key="submittedValueIndex"
-        type="hidden"
-        :name="name"
-        :value="String(submittedValue)"
-      />
+  <KSelectControl
+    ref="selectControl"
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    :block="block"
+    :open="isOpen"
+    :invalid="invalid"
+    :disabled="disabled"
+    :interactive="isOpenable"
+    :has-value="hasSelection"
+    :searches-in-trigger="searchesInTrigger"
+    :leading-icon="leadingIcon"
+    :trailing-icon="showsTrailingIcon ? resolvedTrailingIcon : null"
+    :shows-clear-button="showsClearButton"
+    :clear-label="clearLabel"
+    :spoken-value="announcesSelectedLabelsSeparately ? selectedLabels : undefined"
+    :trigger-attributes="triggerAttributes"
+    :ui="ui"
+    :class="props.class"
+    @clear="clearSelectionFromButton"
+  >
+    <template v-if="triggerAvatar" #leading>
+      <KAvatar v-bind="triggerAvatar" />
     </template>
 
-    <div ref="selectTrigger" v-bind="triggerAttributes" :class="selectSlots.base({ class: ui?.base })">
-      <span v-if="triggerAvatar" :class="selectSlots.leadingAvatar({ class: ui?.leadingAvatar })">
-        <KAvatar v-bind="triggerAvatar" />
-      </span>
-      <component :is="leadingIcon" v-else-if="leadingIcon" :class="selectSlots.leadingIcon({ class: ui?.leadingIcon })" />
-
+    <template v-if="searchesInTrigger" #input="{ inputClass }">
       <input
-        v-if="searchesInTrigger"
         ref="selectSearchInput"
         v-bind="comboboxAttributes"
         type="text"
@@ -237,81 +240,64 @@ const selectSlots = computed(() =>
         :disabled="disabled"
         :value="triggerSearchValue"
         :placeholder="triggerSearchPlaceholder"
-        :class="selectSlots.input({ class: ui?.input })"
+        :class="inputClass"
         @input="searchFromTriggerInput"
         @keydown="handleSearchTriggerKeydown"
         @paste="handleSearchTriggerPaste"
       />
+    </template>
 
-      <template v-else>
-        <span :aria-hidden="announcesSelectedLabelsSeparately || undefined" :class="selectSlots.value({ class: ui?.value })">
-          <slot name="selection" :selected-options="selectedSourceOptions">{{ triggerText }}</slot>
-        </span>
-        <span
-          v-if="announcesSelectedLabelsSeparately"
-          :class="selectSlots.selectionForScreenReaders({ class: ui?.selectionForScreenReaders })"
-        >
-          {{ selectedLabels }}
-        </span>
+    <slot name="selection" :selected-options="selectedSourceOptions">{{ triggerText }}</slot>
+
+    <template v-if="loading" #status="{ statusClass }">
+      <KLoadingIndicator :label="loadingPlaceholder" :class="statusClass" />
+    </template>
+
+    <template #popup>
+      <template v-if="name">
+        <input
+          v-for="(submittedValue, submittedValueIndex) in selectedValues"
+          :key="submittedValueIndex"
+          type="hidden"
+          :name="name"
+          :value="String(submittedValue)"
+        />
       </template>
 
-      <span v-if="showsClearButton || loading || showsTrailingIcon" :class="selectSlots.trailing({ class: ui?.trailing })">
-        <button
-          v-if="showsClearButton"
-          type="button"
-          :aria-label="clearLabel"
-          :class="selectSlots.clearButton({ class: ui?.clearButton })"
-          @click.stop="clearSelectionFromButton"
-          @keydown.stop
-        >
-          <X :class="selectSlots.clearIcon({ class: ui?.clearIcon })" />
-        </button>
-        <KLoadingIndicator
-          v-if="loading"
-          :label="loadingPlaceholder"
-          :class="selectSlots.loadingIndicator({ class: ui?.loadingIndicator })"
-        />
-        <component
-          :is="resolvedTrailingIcon"
-          v-else-if="showsTrailingIcon"
-          :class="selectSlots.trailingIcon({ class: ui?.trailingIcon })"
-        />
-      </span>
-    </div>
-
-    <Teleport to="body">
-      <div v-if="isOpen" ref="selectLayer">
-        <SelectPanel
-          v-model:search-query="searchQuery"
-          :listbox-id="listboxId"
-          :label="label"
-          :visible-entries="visibleEntries"
-          :is-option-selected="isOptionSelected"
-          :highlighted-item-id="highlightedItemId"
-          :multiple="Boolean(multiple)"
-          :shows-search-input="searchable && !searchesInTrigger"
-          :search-placeholder="searchPlaceholder"
-          :no-results-label="noResultsLabel"
-          :actions="actions"
-          :anchor-element="selectRoot"
-          :side="side"
-          :align="align"
-          :flip="flip"
-          :strategy="strategy"
-          :ui="ui"
-          @select-option="selectOption"
-          @run-select-action="runSelectAction"
-          @highlight-item="highlightItem"
-          @search-keydown="handleSearchKeydown"
-        >
-          <template v-if="slots.option" #option="optionSlotProps">
-            <slot name="option" :option="optionSlotProps.option as SourceOption" :selected="optionSlotProps.selected" />
-          </template>
-          <template v-if="slots.search" #search="searchSlotProps">
-            <slot name="search" v-bind="searchSlotProps" />
-          </template>
-        </SelectPanel>
-      </div>
-    </Teleport>
-  </div>
+      <Teleport to="body">
+        <div v-if="isOpen" ref="selectLayer">
+          <SelectPanel
+            v-model:search-query="searchQuery"
+            :listbox-id="listboxId"
+            :label="label"
+            :visible-entries="visibleEntries"
+            :is-option-selected="isOptionSelected"
+            :highlighted-item-id="highlightedItemId"
+            :multiple="Boolean(multiple)"
+            :shows-search-input="searchable && !searchesInTrigger"
+            :search-placeholder="searchPlaceholder"
+            :no-results-label="noResultsLabel"
+            :actions="actions"
+            :anchor-element="selectRoot"
+            :side="side"
+            :align="align"
+            :flip="flip"
+            :strategy="strategy"
+            :ui="ui"
+            @select-option="selectOption"
+            @run-select-action="runSelectAction"
+            @highlight-item="highlightItem"
+            @search-keydown="handleSearchKeydown"
+          >
+            <template v-if="slots.option" #option="optionSlotProps">
+              <slot name="option" :option="optionSlotProps.option as SourceOption" :selected="optionSlotProps.selected" />
+            </template>
+            <template v-if="slots.search" #search="searchSlotProps">
+              <slot name="search" v-bind="searchSlotProps" />
+            </template>
+          </SelectPanel>
+        </div>
+      </Teleport>
+    </template>
+  </KSelectControl>
 </template>

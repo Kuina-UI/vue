@@ -1,9 +1,6 @@
-import type { AvatarProps } from '../../elements/avatar'
 import { tv, type VariantProps } from '../../shared/utils/tv'
 
-type AvatarSizeName = NonNullable<AvatarProps['size']>
-
-interface SelectSizeScale {
+interface SelectControlSizeScale {
   height: string
   gutter: string
   pillGutter: string
@@ -12,7 +9,6 @@ interface SelectSizeScale {
   contentGap: string
   leadingIconSize: string
   leadingIconPillOffset: string
-  leadingAvatarSize?: AvatarSizeName
   leadingAvatarPillOffset: string
   leadingAvatarRoundedOffset: string
   trailingIconSize: string
@@ -22,7 +18,7 @@ interface SelectSizeScale {
   clearIconSize: string
 }
 
-interface SelectAppearance {
+interface SelectControlAppearance {
   surface: string
   interaction: string
   openSurface: string
@@ -31,7 +27,7 @@ interface SelectAppearance {
   searchFocusOffset: string
 }
 
-const selectSizeScales = {
+const selectControlSizeScales = {
   '3xs': {
     height: 'h-5.5',
     gutter: 'px-1.5',
@@ -109,7 +105,6 @@ const selectSizeScales = {
     contentGap: 'gap-2',
     leadingIconSize: 'size-4.5',
     leadingIconPillOffset: '-ml-1',
-    leadingAvatarSize: '3xs',
     leadingAvatarPillOffset: '-ml-2.75',
     leadingAvatarRoundedOffset: '-ml-1.75',
     trailingIconSize: 'size-4',
@@ -127,7 +122,6 @@ const selectSizeScales = {
     contentGap: 'gap-2',
     leadingIconSize: 'size-4.5',
     leadingIconPillOffset: '-ml-1',
-    leadingAvatarSize: '2xs',
     leadingAvatarPillOffset: '-ml-2.5',
     leadingAvatarRoundedOffset: '-ml-1.5',
     trailingIconSize: 'size-4',
@@ -145,7 +139,6 @@ const selectSizeScales = {
     contentGap: 'gap-2',
     leadingIconSize: 'size-4.5',
     leadingIconPillOffset: '-ml-1',
-    leadingAvatarSize: 'xs',
     leadingAvatarPillOffset: '-ml-3',
     leadingAvatarRoundedOffset: '-ml-1.75',
     trailingIconSize: 'size-4',
@@ -163,7 +156,6 @@ const selectSizeScales = {
     contentGap: 'gap-2.5',
     leadingIconSize: 'size-5',
     leadingIconPillOffset: '-ml-1',
-    leadingAvatarSize: 'sm',
     leadingAvatarPillOffset: '-ml-2.75',
     leadingAvatarRoundedOffset: '-ml-1.5',
     trailingIconSize: 'size-4',
@@ -181,7 +173,6 @@ const selectSizeScales = {
     contentGap: 'gap-2.5',
     leadingIconSize: 'size-5',
     leadingIconPillOffset: '-ml-1',
-    leadingAvatarSize: 'md',
     leadingAvatarPillOffset: '-ml-3.25',
     leadingAvatarRoundedOffset: '-ml-2',
     trailingIconSize: 'size-4.5',
@@ -199,7 +190,6 @@ const selectSizeScales = {
     contentGap: 'gap-3',
     leadingIconSize: 'size-5',
     leadingIconPillOffset: '-ml-1',
-    leadingAvatarSize: 'lg',
     leadingAvatarPillOffset: '-ml-3.5',
     leadingAvatarRoundedOffset: '-ml-2',
     trailingIconSize: 'size-5',
@@ -208,9 +198,9 @@ const selectSizeScales = {
     clearButtonSize: 'size-7',
     clearIconSize: 'size-4.5',
   },
-} satisfies Record<string, SelectSizeScale>
+} satisfies Record<string, SelectControlSizeScale>
 
-const selectAppearances = {
+const selectControlAppearances = {
   outline: {
     surface: 'border border-line',
     interaction: 'light:hover:border-stone-950/20 dark:hover:border-white/20',
@@ -235,21 +225,15 @@ const selectAppearances = {
     focusOffset: 'focus-visible:-outline-offset-1',
     searchFocusOffset: 'has-[input:focus-visible]:-outline-offset-1',
   },
-} satisfies Record<string, SelectAppearance>
+} satisfies Record<string, SelectControlAppearance>
 
-type SelectSizeName = keyof typeof selectSizeScales
-type SelectAppearanceName = keyof typeof selectAppearances
+type SelectControlSizeName = keyof typeof selectControlSizeScales
+type SelectControlAppearanceName = keyof typeof selectControlAppearances
 
-const selectSizeNames = Object.keys(selectSizeScales) as SelectSizeName[]
-const selectAppearanceNames = Object.keys(selectAppearances) as SelectAppearanceName[]
+const selectControlSizeNames = Object.keys(selectControlSizeScales) as SelectControlSizeName[]
+const selectControlAppearanceNames = Object.keys(selectControlAppearances) as SelectControlAppearanceName[]
 
-/** Find the avatar size that fits the trigger of a select, or nothing when the trigger is too small for one. */
-export function findSelectTriggerAvatarSize(selectSize: SelectSizeName): AvatarSizeName | undefined {
-  const sizeScale: SelectSizeScale = selectSizeScales[selectSize]
-  return sizeScale.leadingAvatarSize
-}
-
-function createSizeVariant(sizeScale: SelectSizeScale) {
+function createSizeVariant(sizeScale: SelectControlSizeScale) {
   return {
     base: [sizeScale.height, sizeScale.fontSize, sizeScale.contentGap],
     leadingIcon: sizeScale.leadingIconSize,
@@ -260,8 +244,8 @@ function createSizeVariant(sizeScale: SelectSizeScale) {
   }
 }
 
-function createShapeCompounds(sizeName: SelectSizeName) {
-  const sizeScale: SelectSizeScale = selectSizeScales[sizeName]
+function createShapeCompounds(sizeName: SelectControlSizeName) {
+  const sizeScale: SelectControlSizeScale = selectControlSizeScales[sizeName]
 
   return [
     {
@@ -286,8 +270,8 @@ function createShapeCompounds(sizeName: SelectSizeName) {
   ] as const
 }
 
-function createAppearanceCompounds(appearanceName: SelectAppearanceName) {
-  const appearance: SelectAppearance = selectAppearances[appearanceName]
+function createAppearanceCompounds(appearanceName: SelectControlAppearanceName) {
+  const appearance: SelectControlAppearance = selectControlAppearances[appearanceName]
 
   return [
     { variant: appearanceName, searchesInTrigger: false, class: { base: appearance.focusOffset } },
@@ -313,11 +297,11 @@ function createAppearanceCompounds(appearanceName: SelectAppearanceName) {
   ] as const
 }
 
-const selectSizeVariants = Object.fromEntries(
-  selectSizeNames.map((sizeName) => [sizeName, createSizeVariant(selectSizeScales[sizeName])]),
-) as Record<SelectSizeName, ReturnType<typeof createSizeVariant>>
+const selectControlSizeVariants = Object.fromEntries(
+  selectControlSizeNames.map((sizeName) => [sizeName, createSizeVariant(selectControlSizeScales[sizeName])]),
+) as Record<SelectControlSizeName, ReturnType<typeof createSizeVariant>>
 
-export const selectTheme = tv({
+export const selectControlTheme = tv({
   slots: {
     root: 'relative',
     base: 'group flex w-full items-center justify-between leading-6 font-medium whitespace-nowrap transition-colors select-none',
@@ -334,7 +318,7 @@ export const selectTheme = tv({
     trailingIcon: 'shrink-0 text-muted transition-opacity group-hover:opacity-100',
   },
   variants: {
-    size: selectSizeVariants,
+    size: selectControlSizeVariants,
     variant: {
       outline: '',
       soft: '',
@@ -380,8 +364,8 @@ export const selectTheme = tv({
     },
   },
   compoundVariants: [
-    ...selectSizeNames.flatMap(createShapeCompounds),
-    ...selectAppearanceNames.flatMap(createAppearanceCompounds),
+    ...selectControlSizeNames.flatMap(createShapeCompounds),
+    ...selectControlAppearanceNames.flatMap(createAppearanceCompounds),
     { hasSelection: false, searchesInTrigger: false, class: { base: 'text-muted' } },
   ],
   defaultVariants: {
@@ -399,6 +383,6 @@ export const selectTheme = tv({
   },
 })
 
-export type SelectThemeVariants = VariantProps<typeof selectTheme>
+export type SelectControlThemeVariants = VariantProps<typeof selectControlTheme>
 
-export type SelectSlotName = keyof ReturnType<typeof selectTheme>
+export type SelectControlSlotName = keyof ReturnType<typeof selectControlTheme>
