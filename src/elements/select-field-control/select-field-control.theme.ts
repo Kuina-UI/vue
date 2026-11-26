@@ -1,36 +1,31 @@
-import type { AvatarProps } from '../../elements/avatar'
 import { tv, type VariantProps } from '../../shared/utils/tv'
 
-type AvatarSizeName = NonNullable<AvatarProps['size']>
-
-interface SelectFieldShapeScale {
+interface SelectFieldControlShapeScale {
   corners: string
   gutter: string
   labelOffset: string
   restingLabelOffsetWithLeadingIcon: string
 }
 
-interface SelectFieldSizeScale {
+interface SelectFieldControlSizeScale {
   height: string
   fontSize: string
   leadingIconSize: string
-  leadingAvatarSize: AvatarSizeName
   trailingIconSize: string
   loadingIndicatorSize: string
   clearButtonSize: string
   clearIconSize: string
   floatingLabelFontSize: string
   restingLabelFontSize: string
-  pillShape: SelectFieldShapeScale
-  roundedShape: SelectFieldShapeScale
+  pillShape: SelectFieldControlShapeScale
+  roundedShape: SelectFieldControlShapeScale
 }
 
-const selectFieldSizeScales = {
+const selectFieldControlSizeScales = {
   md: {
     height: 'h-8',
     fontSize: 'text-sm',
     leadingIconSize: 'size-3',
-    leadingAvatarSize: '3xs',
     trailingIconSize: 'size-4',
     loadingIndicatorSize: 'text-base',
     clearButtonSize: 'size-5.5',
@@ -44,7 +39,6 @@ const selectFieldSizeScales = {
     height: 'h-9',
     fontSize: 'text-sm',
     leadingIconSize: 'size-3',
-    leadingAvatarSize: '3xs',
     trailingIconSize: 'size-4',
     loadingIndicatorSize: 'text-base',
     clearButtonSize: 'size-5.5',
@@ -58,7 +52,6 @@ const selectFieldSizeScales = {
     height: 'h-10',
     fontSize: 'text-base',
     leadingIconSize: 'size-3.5',
-    leadingAvatarSize: '2xs',
     trailingIconSize: 'size-4',
     loadingIndicatorSize: 'text-lg',
     clearButtonSize: 'size-6',
@@ -82,7 +75,6 @@ const selectFieldSizeScales = {
     height: 'h-11',
     fontSize: 'text-base',
     leadingIconSize: 'size-4',
-    leadingAvatarSize: 'xs',
     trailingIconSize: 'size-4',
     loadingIndicatorSize: 'text-lg',
     clearButtonSize: 'size-6',
@@ -101,7 +93,6 @@ const selectFieldSizeScales = {
     height: 'h-12',
     fontSize: 'text-base',
     leadingIconSize: 'size-4',
-    leadingAvatarSize: 'sm',
     trailingIconSize: 'size-4.5',
     loadingIndicatorSize: 'text-xl',
     clearButtonSize: 'size-6',
@@ -120,7 +111,6 @@ const selectFieldSizeScales = {
     height: 'h-14',
     fontSize: 'text-base',
     leadingIconSize: 'size-4',
-    leadingAvatarSize: 'md',
     trailingIconSize: 'size-5',
     loadingIndicatorSize: 'text-2xl',
     clearButtonSize: 'size-7',
@@ -135,17 +125,13 @@ const selectFieldSizeScales = {
       restingLabelOffsetWithLeadingIcon: 'left-9.5 peer-focus-within:left-3.5',
     },
   },
-} satisfies Record<string, SelectFieldSizeScale>
+} satisfies Record<string, SelectFieldControlSizeScale>
 
-type SelectFieldSizeName = keyof typeof selectFieldSizeScales
+type SelectFieldControlSizeName = keyof typeof selectFieldControlSizeScales
 
-const selectFieldSizeNames = Object.keys(selectFieldSizeScales) as SelectFieldSizeName[]
+const selectFieldControlSizeNames = Object.keys(selectFieldControlSizeScales) as SelectFieldControlSizeName[]
 
-export function findSelectFieldAvatarSize(selectFieldSize: SelectFieldSizeName) {
-  return selectFieldSizeScales[selectFieldSize].leadingAvatarSize
-}
-
-function createSizeVariant(sizeScale: SelectFieldSizeScale) {
+function createSizeVariant(sizeScale: SelectFieldControlSizeScale) {
   return {
     base: [sizeScale.height, sizeScale.fontSize],
     leadingIcon: sizeScale.leadingIconSize,
@@ -156,8 +142,8 @@ function createSizeVariant(sizeScale: SelectFieldSizeScale) {
   }
 }
 
-function createShapeCompounds(sizeName: SelectFieldSizeName) {
-  const sizeScale: SelectFieldSizeScale = selectFieldSizeScales[sizeName]
+function createShapeCompounds(sizeName: SelectFieldControlSizeName) {
+  const sizeScale: SelectFieldControlSizeScale = selectFieldControlSizeScales[sizeName]
 
   return [true, false].flatMap((pill) => {
     const shape = pill ? sizeScale.pillShape : sizeScale.roundedShape
@@ -188,11 +174,11 @@ function createShapeCompounds(sizeName: SelectFieldSizeName) {
   })
 }
 
-const selectFieldSizeVariants = Object.fromEntries(
-  selectFieldSizeNames.map((sizeName) => [sizeName, createSizeVariant(selectFieldSizeScales[sizeName])]),
-) as Record<SelectFieldSizeName, ReturnType<typeof createSizeVariant>>
+const selectFieldControlSizeVariants = Object.fromEntries(
+  selectFieldControlSizeNames.map((sizeName) => [sizeName, createSizeVariant(selectFieldControlSizeScales[sizeName])]),
+) as Record<SelectFieldControlSizeName, ReturnType<typeof createSizeVariant>>
 
-export const selectFieldTheme = tv({
+export const selectFieldControlTheme = tv({
   slots: {
     root: '',
     container: 'relative',
@@ -217,7 +203,7 @@ export const selectFieldTheme = tv({
     errorIcon: 'mt-px size-3.5 shrink-0',
   },
   variants: {
-    size: selectFieldSizeVariants,
+    size: selectFieldControlSizeVariants,
     variant: {
       outline: '',
       soft: '',
@@ -260,7 +246,7 @@ export const selectFieldTheme = tv({
     },
   },
   compoundVariants: [
-    ...selectFieldSizeNames.flatMap(createShapeCompounds),
+    ...selectFieldControlSizeNames.flatMap(createShapeCompounds),
     { fieldState: 'disabled', variant: 'outline', class: { base: 'border-line' } },
     { fieldState: 'disabled', variant: 'soft', class: { base: 'border-transparent' } },
     {
@@ -286,6 +272,6 @@ export const selectFieldTheme = tv({
   },
 })
 
-export type SelectFieldThemeVariants = VariantProps<typeof selectFieldTheme>
+export type SelectFieldControlThemeVariants = VariantProps<typeof selectFieldControlTheme>
 
-export type SelectFieldSlotName = keyof ReturnType<typeof selectFieldTheme>
+export type SelectFieldControlSlotName = keyof ReturnType<typeof selectFieldControlTheme>

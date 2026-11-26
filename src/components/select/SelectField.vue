@@ -2,7 +2,7 @@
 import type { Component } from 'vue'
 import type { FloatingAlign, FloatingSide, FloatingStrategy } from '../../shared/types/floating-position'
 import type { ClassNameValue } from '../../shared/utils/tv'
-import type { SelectFieldSlotName, SelectFieldThemeVariants } from './select-field.theme'
+import type { SelectFieldControlSlotName, SelectFieldControlThemeVariants } from '../../elements/select-field-control'
 import type { SelectPanelSlotName } from './select-panel.theme'
 import type { SelectOption, SelectOptionEntry } from './selectOptions'
 import type { SelectAction } from './useSelectListbox'
@@ -36,30 +36,29 @@ export interface SelectFieldProps<
   errorMessage?: string
   invalid?: boolean
   disabled?: boolean
-  size?: SelectFieldThemeVariants['size']
-  variant?: SelectFieldThemeVariants['variant']
+  size?: SelectFieldControlThemeVariants['size']
+  variant?: SelectFieldControlThemeVariants['variant']
   pill?: boolean
-  floatLabel?: SelectFieldThemeVariants['floatLabel']
+  floatLabel?: SelectFieldControlThemeVariants['floatLabel']
   leadingIcon?: Component
   trailingIcon?: Component | null
   side?: FloatingSide
   align?: FloatingAlign
   flip?: boolean
   strategy?: FloatingStrategy
-  ui?: Partial<Record<SelectFieldSlotName | SelectPanelSlotName, ClassNameValue>>
+  ui?: Partial<Record<SelectFieldControlSlotName | SelectPanelSlotName, ClassNameValue>>
   class?: ClassNameValue
 }
 </script>
 
 <script setup lang="ts" generic="SourceOption = SelectOption, ValueKey extends string = 'value', Multiple extends boolean = false">
-import { CircleAlert, X } from 'lucide-vue-next'
 import { computed, type Ref, useTemplateRef } from 'vue'
-import { KAvatar } from '../../elements/avatar'
+import { type AvatarProps, KAvatar } from '../../elements/avatar'
 import { KLoadingIndicator } from '../../elements/loading-indicator'
+import { KSelectFieldControl } from '../../elements/select-field-control'
 import { useFieldDescription } from '../../shared/composables/useFieldDescription'
 import type { SelectModelValue, SelectSlots } from './Select.vue'
 import SelectPanel from './SelectPanel.vue'
-import { findSelectFieldAvatarSize, selectFieldTheme } from './select-field.theme'
 import { useSelectControl } from './useSelectControl'
 
 const props = withDefaults(defineProps<SelectFieldProps<SourceOption, ValueKey, Multiple>>(), {
@@ -87,8 +86,18 @@ const slots = defineSlots<SelectSlots<SourceOption>>()
 const selectedValue = defineModel<SelectModelValue<SourceOption, ValueKey, Multiple>>()
 const isOpen = defineModel<boolean>('open', { default: false })
 
-const selectFieldContainer = useTemplateRef<HTMLElement>('selectFieldContainer')
-const selectFieldTrigger = useTemplateRef<HTMLElement>('selectFieldTrigger')
+const triggerAvatarSizes: Record<NonNullable<SelectFieldControlThemeVariants['size']>, AvatarProps['size']> = {
+  'md': '3xs',
+  'lg': '3xs',
+  'xl': '2xs',
+  '2xl': 'xs',
+  '3xl': 'sm',
+  '4xl': 'md',
+}
+
+const selectFieldControl = useTemplateRef<InstanceType<typeof KSelectFieldControl>>('selectFieldControl')
+const selectFieldContainer = computed(() => selectFieldControl.value?.containerElement ?? null)
+const selectFieldTrigger = computed(() => selectFieldControl.value?.triggerElement ?? null)
 const selectFieldInput = useTemplateRef<HTMLInputElement>('selectFieldInput')
 const selectFieldLayer = useTemplateRef<HTMLElement>('selectFieldLayer')
 
@@ -140,7 +149,7 @@ const {
 })
 
 const triggerAvatar = computed(() =>
-  selectedAvatar.value ? { ...selectedAvatar.value, size: findSelectFieldAvatarSize(props.size ?? '4xl') } : undefined,
+  selectedAvatar.value ? { ...selectedAvatar.value, size: triggerAvatarSizes[props.size] } : undefined,
 )
 
 const comboboxAttributes = computed(() => ({
@@ -174,31 +183,65 @@ const triggerAttributes = computed(() => {
   }
 })
 
-const fieldState = computed(() => {
-  if (isInvalid.value) return 'invalid'
-  if (props.disabled) return 'disabled'
-  return isOpen.value ? 'open' : 'idle'
-})
-
-const selectFieldSlots = computed(() =>
-  selectFieldTheme({
-    size: props.size,
-    variant: props.variant,
-    pill: props.pill,
-    fieldState: fieldState.value,
-    floatLabel: props.floatLabel,
-    labelFloating: props.floatLabel === 'always' || hasSelection.value || isOpen.value,
-    hasLeadingIcon: Boolean(props.leadingIcon),
-    disabled: props.disabled,
-    open: isOpen.value,
-    hasTrailingIcon: showsTrailingIcon.value,
-  }),
-)
 </script>
 
 <template>
-  <div :class="selectFieldSlots.root({ class: [ui?.root, props.class] })">
-    <div ref="selectFieldContainer" :class="selectFieldSlots.container({ class: ui?.container })">
+  <KSelectFieldControl
+    ref="selectFieldControl"
+    :label="label"
+    :label-id="labelId"
+    :hint-id="hintId"
+    :error-message-id="errorMessageId"
+    :placeholder="placeholder"
+    :hint="hint"
+    :error-message="errorMessage"
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    :float-label="floatLabel"
+    :open="isOpen"
+    :invalid="isInvalid"
+    :disabled="disabled"
+    :has-value="hasSelection"
+    :leading-icon="leadingIcon"
+    :trailing-icon="showsTrailingIcon ? resolvedTrailingIcon : null"
+    :shows-clear-button="showsClearButton"
+    :clear-label="clearLabel"
+    :spoken-value="announcesSelectedLabelsSeparately ? selectedLabels : undefined"
+    :trigger-attributes="triggerAttributes"
+    :ui="ui"
+    :class="props.class"
+    @clear="clearSelectionFromButton"
+  >
+    <template v-if="triggerAvatar" #leading>
+      <KAvatar v-bind="triggerAvatar" />
+    </template>
+
+    <template v-if="searchesInTrigger" #input="{ inputClass }">
+      <input
+        ref="selectFieldInput"
+        v-bind="comboboxAttributes"
+        type="text"
+        aria-autocomplete="list"
+        autocomplete="off"
+        :spellcheck="false"
+        :disabled="disabled"
+        :value="triggerSearchValue"
+        :placeholder="searchFieldPlaceholder"
+        :class="inputClass"
+        @input="searchFromTriggerInput"
+        @keydown="handleSearchTriggerKeydown"
+        @paste="handleSearchTriggerPaste"
+      />
+    </template>
+
+    <slot name="selection" :selected-options="selectedSourceOptions">{{ selectionText }}</slot>
+
+    <template v-if="loading" #status="{ statusClass }">
+      <KLoadingIndicator :label="loadingLabel" :class="statusClass" />
+    </template>
+
+    <template #popup>
       <template v-if="name">
         <input
           v-for="(submittedValue, submittedValueIndex) in selectedValues"
@@ -208,80 +251,6 @@ const selectFieldSlots = computed(() =>
           :value="String(submittedValue)"
         />
       </template>
-
-      <div ref="selectFieldTrigger" v-bind="triggerAttributes" :class="selectFieldSlots.base({ class: ui?.base })">
-        <span v-if="triggerAvatar" :class="selectFieldSlots.leadingAvatar({ class: ui?.leadingAvatar })">
-          <KAvatar v-bind="triggerAvatar" />
-        </span>
-        <component
-          :is="leadingIcon"
-          v-else-if="leadingIcon"
-          :class="selectFieldSlots.leadingIcon({ class: ui?.leadingIcon })"
-        />
-
-        <input
-          v-if="searchesInTrigger"
-          ref="selectFieldInput"
-          v-bind="comboboxAttributes"
-          type="text"
-          aria-autocomplete="list"
-          autocomplete="off"
-          :spellcheck="false"
-          :disabled="disabled"
-          :value="triggerSearchValue"
-          :placeholder="searchFieldPlaceholder"
-          :class="selectFieldSlots.input({ class: ui?.input })"
-          @input="searchFromTriggerInput"
-          @keydown="handleSearchTriggerKeydown"
-          @paste="handleSearchTriggerPaste"
-        />
-
-        <template v-else>
-          <span
-            :aria-hidden="announcesSelectedLabelsSeparately || undefined"
-            :class="selectFieldSlots.value({ class: ui?.value })"
-          >
-            <slot v-if="hasSelection" name="selection" :selected-options="selectedSourceOptions">{{ selectionText }}</slot>
-            <span v-else-if="placeholder" :class="selectFieldSlots.placeholder({ class: ui?.placeholder })">
-              {{ placeholder }}
-            </span>
-          </span>
-          <span
-            v-if="announcesSelectedLabelsSeparately"
-            :class="selectFieldSlots.selectionForScreenReaders({ class: ui?.selectionForScreenReaders })"
-          >
-            {{ selectedLabels }}
-          </span>
-        </template>
-
-        <span
-          v-if="showsClearButton || loading || showsTrailingIcon"
-          :class="selectFieldSlots.trailing({ class: ui?.trailing })"
-        >
-          <button
-            v-if="showsClearButton"
-            type="button"
-            :aria-label="clearLabel"
-            :class="selectFieldSlots.clearButton({ class: ui?.clearButton })"
-            @click.stop="clearSelectionFromButton"
-            @keydown.stop
-          >
-            <X :class="selectFieldSlots.clearIcon({ class: ui?.clearIcon })" />
-          </button>
-          <KLoadingIndicator
-            v-if="loading"
-            :label="loadingLabel"
-            :class="selectFieldSlots.loadingIndicator({ class: ui?.loadingIndicator })"
-          />
-          <component
-            :is="resolvedTrailingIcon"
-            v-else-if="showsTrailingIcon"
-            :class="selectFieldSlots.trailingIcon({ class: ui?.trailingIcon })"
-          />
-        </span>
-      </div>
-
-      <span :id="labelId" :class="selectFieldSlots.label({ class: ui?.label })">{{ label }}</span>
 
       <Teleport to="body">
         <div v-if="isOpen" ref="selectFieldLayer">
@@ -317,13 +286,6 @@ const selectFieldSlots = computed(() =>
           </SelectPanel>
         </div>
       </Teleport>
-    </div>
-
-    <p v-if="errorMessage" :id="errorMessageId" :class="selectFieldSlots.errorMessage({ class: ui?.errorMessage })">
-      <CircleAlert :class="selectFieldSlots.errorIcon({ class: ui?.errorIcon })" />
-      {{ errorMessage }}
-    </p>
-
-    <p v-else-if="hint" :id="hintId" :class="selectFieldSlots.hint({ class: ui?.hint })">{{ hint }}</p>
-  </div>
+    </template>
+  </KSelectFieldControl>
 </template>
