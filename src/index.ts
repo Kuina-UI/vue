@@ -2,6 +2,15 @@ export { KAlert } from './components/alert'
 export type { AlertProps } from './components/alert'
 export { KAvatarGroup } from './components/avatar-group'
 export type { AvatarGroupMember, AvatarGroupProps } from './components/avatar-group'
+export { KDatePicker, KDateRangePicker } from './components/date-picker'
+export type {
+  DatePickerProps,
+  DatePickerSlots,
+  DateRange,
+  DateRangePickerProps,
+  DateRangePickerSlots,
+  DateRangeShortcut,
+} from './components/date-picker'
 export { extractMenuShortcuts, KMenu } from './components/menu'
 export type {
   MenuEntry,
@@ -63,3 +72,4 @@ export type {
   ShortcutModifierName,
   ShortcutOptions,
 } from './shared/types/shortcut'
+export type { DateOrDateRange, Weekday } from './shared/types/calendar'
