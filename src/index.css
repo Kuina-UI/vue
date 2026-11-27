@@ -4,6 +4,7 @@
 @import "./shared/styles/utilities/checkbox-check-mark.css";
 @import "./shared/styles/utilities/loading-dots.css";
 @import "./shared/styles/utilities/loading-indicator.css";
+@import "./shared/styles/utilities/slider-mark-position.css";
 
 @source "../dist";
 

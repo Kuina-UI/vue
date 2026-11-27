@@ -1,0 +1,5 @@
+export { default as KRangeSlider } from './RangeSlider.vue'
+export type { RangeSliderProps, RangeSliderSlots } from './RangeSlider.vue'
+export { default as KSlider } from './Slider.vue'
+export type { SliderProps, SliderSlots } from './Slider.vue'
+export type { SliderMark, SliderRange } from '../../shared/types/slider'

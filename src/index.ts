@@ -37,6 +37,15 @@ export type {
   SelectProps,
   SelectSlots,
 } from './components/select'
+export { KRangeSlider, KSlider } from './components/slider'
+export type {
+  RangeSliderProps,
+  RangeSliderSlots,
+  SliderMark,
+  SliderProps,
+  SliderRange,
+  SliderSlots,
+} from './components/slider'
 export { KTextField } from './components/text-field'
 export type { TextFieldProps } from './components/text-field'
 export { KTextarea } from './components/textarea'

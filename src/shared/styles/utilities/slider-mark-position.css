@@ -1,0 +1,8 @@
+/** Centers a mark label under the thumb placed at --slider-mark-ratio of the track, without overflowing the track. */
+@utility slider-mark-position {
+  translate: clamp(
+    0px,
+    calc(var(--slider-mark-ratio) * (100cqw - var(--slider-thumb-size)) + var(--slider-thumb-size) / 2 - 50%),
+    calc(100cqw - 100%)
+  );
+}
